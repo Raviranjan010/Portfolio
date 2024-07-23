@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Portfolio Website</title>
+    <link rel="stylesheet" href="style.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css' rel='stylesheet'>
+    
+</head>
+<body>
+    <header class="header">
+        <a href="#home" class="logo">Ravi <span>Ranjan</span></a>
+
+        <i class='bx bx-menu' id="menu-icon">
+            <a href="#navbar"></a>
+        </i>
+        <nav class="navbar">
+            <a href="#home" class="active">Home</a>
+            <a href="#education">Education</a>
+            <a href="#services">Services</a>
+            <a href="#skills">Skills</a>
+            <a href="#projects">Projects</a>
+            <a href="#contact">Contact</a>
+            <a href="#cv">My Resume</a>
+        </nav>
+    </header>
+
+    <section class="home" id="home">
+        <div class="home-content">
+            <h1>Hi, It's <span>Ravi</span></h1>
+            <h3 class="text-animation">I'm a <span></span></h3>
+            <p>Welcome to my portfolio here you will know about my skill and projects</p>
+            <div class="social-icons">
+                <a href="https://www.linkedin.com/in/ravi2006/" target="_blank"><i class='bx bxl-linkedin'></i></a>
+                <a href="https://www.instagram.com/raviranjankashyap7/?hl=en" target="_blank"><i class='bx bxl-instagram'></i></a>
+                <a href="https://github.com/Raviranjan010" target="_blank"><i class='bx bxl-github'></i></a>
+                <a href="https://www.youtube.com/@Helping_peoples6?sub_confirmation=1" target="_blank"><i class="fa-brands fa-youtube"></i></a>
+                <a href="#skills" target="_blank"><i class="fa-solid fa-code"></i></a>
+                <a href="https://www.udemy.com/user/ravi-ranjan-1198/" target="_blank"><i class="fa-solid fa-certificate"></i></a>
+            </div>
+            <div class="btn-group">
+                <a href="#mailto:raviranjan01b@gmail.com" class="btn">Hire Me</a>
+                <a href="#contact" class="btn">Contact Me</a>
+            </div>
+        </div>
+        <div class="home-img">
+            <img src="profile1.jpg" alt="Profile Image" class="profile-img">
+        </div>
+    </section>
+    
+
+
+    <section class="about" id="about">
+        <h2>About Me</h2>
+        <div class="about-content">
+            <p>Hi, I'm Ravi Ranjan, a passionate web developer with a knack for creating intuitive and user-friendly interfaces. With a background in UI/UX design, web development, data analysis, and graphic design, I bring a diverse set of skills to the table. I love transforming ideas into digital experiences that are not only visually appealing but also highly functional.</p>
+            <p>With a strong foundation in modern technologies and a keen eye for detail, I strive to deliver high-quality work that meets and exceeds client expectations. Whether it's building responsive websites, analyzing data to provide actionable insights, or crafting captivating graphics, I am dedicated to continuous learning and improvement.</p>
+            <p>Let's work together to bring your ideas to life!</p>
+        </div>
+    </section>
+      
+
+
+    
+    
+    
+    
+    
+    
+    
+
+
+
+
+    <section class="education" id="education">
+        <h2 class="heading">Education</h2>
+        <div class="education-container">
+            <div class="education-card">
+                <div class="card-content">
+                    <div class="education-icon"><i class='bx bxs-school'></i></div>
+                    <h3>Patliputra Central School</h3>
+                    <p>Secondary School</p>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 100%;"></div>
+                    </div>
+                    <span class="year">2021</span>
+                </div>
+            </div>
+            <div class="education-card">
+                <div class="card-content">
+                    <div class="education-icon"><i class='bx bxs-school'></i></div>
+                    <h3>New Patliputra Central School</h3>
+                    <p>High School - 11th and 12th</p>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 100%;"></div>
+                    </div>
+                    <span class="year">2021-2023</span>
+                </div>
+            </div>
+            <div class="education-card">
+                <div class="card-content">
+                    <div class="education-icon"><i class='bx bxs-graduation'></i></div>
+                    <h3>Lovely Professional University</h3>
+                    <p>Bachelor's degree in Computer Science and Engineering</p>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 0;"></div>
+                    </div>
+                    <span class="year">second year</span>
+                </div>
+            </div>
+            <div class="education-card">
+                <div class="card-content">
+                    <div class="education-icon"><i class='bx bxs-briefcase'></i></div>
+                    <h3>Internship</h3>
+                    <p>Various roles in the industry</p>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 0%;">
+                            <a href="#"></a>
+                        </div>
+                    </div>
+                    <span class="year">applied</span>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    
+    
+    <section class="services" id="services">
+        <h2 class="heading">My Services</h2>
+        <div class="services-container">
+            <div class="service-card" onmouseover="addSmokyEffect(this)" onmouseout="removeSmokyEffect(this)">
+                <div class="service-icon"><i class='bx bxs-cog'></i></div>
+                <h3>UI/UX Design</h3>
+                <p>Creating intuitive and user-friendly interfaces for better user experience.</p>
+            </div>
+            <div class="service-card" onmouseover="addSmokyEffect(this)" onmouseout="removeSmokyEffect(this)">
+                <div class="service-icon"><i class='bx bxs-code'></i></div>
+                <h3>Web Development</h3>
+                <p>Building responsive and dynamic websites with modern technologies.</p>
+            </div>
+            <div class="service-card" onmouseover="addSmokyEffect(this)" onmouseout="removeSmokyEffect(this)">
+                <div class="service-icon"><i class='bx bxs-data'></i></div>
+                <h3>Data Analysis</h3>
+                <p>Analyzing and visualizing data to provide actionable insights.</p>
+            </div>
+            <div class="service-card" onmouseover="addSmokyEffect(this)" onmouseout="removeSmokyEffect(this)">
+                <div class="service-icon"><i class='bx bxs-brush'></i></div>
+                <h3>Graphic Design</h3>
+                <p>Designing captivating graphics and visuals for various media.</p>
+            </div>
+        </div>
+    </section>
+    
+
+    
+    
+
+    <section class="skills" id="skills">
+        <h2 class="heading">Skills</h2>
+        <div class="skills-container">
+            <a href="https://www.cloudskillsboost.google/public_profiles/2ffe4c67-58f0-4a74-b876-040f6503423a" target="_blank" class="skill-card">
+                <div class="card-front">
+                    <img src="google-cloud.256x206.png" alt="Google Cloud">
+                    <span>Google Cloud</span>
+                </div>
+            </a>
+    
+            <a href="https://www.hackerrank.com/profile/raviranjan01b" target="_blank" class="skill-card">
+                <div class="card-front">
+                    <img src="hackerrank1.png" alt="Hackerrank">
+                    <span>Hackerrank</span>
+                </div>
+            </a>
+            
+            <a href="https://leetcode.com/u/Ravi-Ranjajn/" target="_blank" class="skill-card">
+                <div class="card-front">
+                    <img src="leetcode (3).png" alt="Leetcode">
+                    <span>Leetcode</span>
+                </div>
+            </a>
+            
+            <a href="https://www.figma.com/files/team/1313458300332182271/user/1313458297977654582?fuid=1313458297977654582" target="_blank" class="skill-card">
+                <div class="card-front">
+                    <img src="figma.png" alt="Figma">
+                    <span>Figma</span>
+                </div>
+            </a>
+            
+            <a href="https://wordpress.com/" target="_blank" class="skill-card">
+                <div class="card-front">
+                    <img src="wordpress.256x256.png" alt="Wordpress">
+                    <span>Wordpress</span>
+                </div>
+            </a>
+            
+            <a href="https://www.adobe.com/products/photoshop.html" target="_blank" class="skill-card">
+                <div class="card-front">
+                    <img src="adobe-photoshop.256x256.png" alt="Photoshop">
+                    <span>Photoshop</span>
+                </div>
+            </a>
+            
+            <a href="https://www.python.org/" target="_blank" class="skill-card">
+                <div class="card-front">
+                    <img src="python.256x254.png" alt="Python">
+                    <span>Python</span>
+                </div>
+            </a>
+        </div>
+    </section>
+    
+
+
+    <section class="projects" id="projects">
+        <h2 class="heading">Latest <span>Project</span></h2>
+        <div class="portfolio-content">
+            <div class="project-card">
+                <div class="project-image">
+                    <img src="login.jpg" alt="Login Page">
+                    <div class="project-info">
+                        <h3>Login-page</h3>
+                        <p>The Login and Register Page project is a fundamental web application designed to provide user authentication functionality, including account creation and login processes. This project showcases my skills in frontend development, user interface design, and backend integration, ensuring a secure and user-friendly authentication system.</p>
+                        <a href="https://github.com/Raviranjan010/loginpagebyraviranjan" target="_blank">
+                            <i class='bx bx-link-external'></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+
+    
+    
+
+    
+    
+    
+
+    <section class="contact" id="contact">
+        <h2 class="heading">Contact <span>Me</span></h2>
+        <form action="send_email.php" method="POST">
+            <div class="input-group">
+                <div class="input-box">
+                    <input type="text" name="name" placeholder="Full Name" required>
+                    <input type="email" name="email" placeholder="Email" required>
+                </div>
+                <div class="input-box">
+                    <input type="number" name="phone" placeholder="Phone no." required>
+                    <input type="text" name="subject" placeholder="Subject" required>
+                </div>
+            </div>
+            <div class="input-group-2">
+                <textarea name="message" cols="30" rows="10" placeholder="Your Message......" required></textarea>
+                <input type="submit" value="Send Message" class="btn">
+            </div>
+        </form>
+        <section class="cv" id="cv">
+            <h2 class="heading">Download CV</h2>
+            <a href="__resume (2).pdf" download class="cv-button">Download CV</a>
+        </section>
+    </section>
+    
+
+    
+    
+
+    <footer class="footer">
+        <div class="social">
+            <a href="https://www.linkedin.com/in/ravi2006/" target="_blank"><i class='bx bxl-linkedin'></i></a>
+            <a href="https://www.instagram.com/raviranjankashyap7/?hl=en" target="_blank"><i class='bx bxl-instagram'></i></a>
+            <a href="https://github.com/Raviranjan010" target="_blank"><i class='bx bxl-github'></i></a>
+            <a href="https://www.youtube.com/@Helping_peoples6?sub_confirmation=1" target="_blank"><i class="fa-brands fa-youtube"></i></a>
+                    
+        </div>
+
+        <ul class="list">
+            <li>
+                <a href="#">FAQ</a>
+            </li>
+            <li>
+                <a href="#services">Services</a>
+            </li>
+            <li>
+                <a href="#contact">Contact</a>
+            </li>
+            <li>
+                <a href="#about">About me</a>
+            </li>
+        </ul>
+        <div class="send-email" style="display: flex; justify-content: center; align-items: center;">
+            <div style="display: flex; align-items: center;">
+                <span style="font-size: 1.5rem; margin-right: 10px;">
+                    ✉️
+                </span>
+                <a href="mailto:raviranjan01b@gmail.com" style="font-size: 1.6rem; color: var(--main-color); text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='#ff6347';" onmouseout="this.style.color='var(--main-color)';">raviranjan01b@gmail.com</a>
+            </div>
+        </div>
+        
+           
+            
+        <p class="copyright">
+            @ Ravi Ranjan Kashyap | All Rights reserved
+        </p>
+    </footer>
+    
+    <script src="script.js"></script>
+</body>
+</html>
