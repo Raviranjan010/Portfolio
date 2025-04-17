@@ -3,310 +3,1063 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>👨‍💼Responsive Portfolio Website</title>
-    <link rel="stylesheet" href="style.css">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css' rel='stylesheet'>
-    
+    <title>AI Budget Bot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #3b82f6;
+            --accent-color: #ec4899;
+            --text-color: #111827;
+            --light-text: #6b7280;
+            --bg-color: #f9fafb;
+            --card-bg: #ffffff;
+            --shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        .dark-mode {
+            --primary-color: #818cf8;
+            --secondary-color: #60a5fa;
+            --accent-color: #f472b6;
+            --text-color: #e5e7eb;
+            --light-text: #9ca3af;
+            --bg-color: #1f2937;
+            --card-bg: #374151;
+            --shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: var(--transition);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo img {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            box-shadow: var(--shadow);
+        }
+
+        .logo h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .theme-toggle {
+            background: var(--card-bg);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-3px);
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .chat-container {
+            display: flex;
+            gap: 24px;
+            height: calc(100vh - 180px);
+        }
+
+        .sidebar {
+            width: 340px;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            margin-bottom: 24px;
+        }
+
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .budget-form, .expense-form, .category-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--light-text);
+        }
+
+        .form-group input, .form-group select {
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-3px);
+        }
+
+        .btn-secondary {
+            background-color: var(--card-bg);
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(79, 70, 229, 0.1);
+        }
+
+        .categories-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .category-tag {
+            background-color: rgba(79, 70, 229, 0.1);
+            color: var(--primary-color);
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .category-tag:hover {
+            background-color: rgba(79, 70, 229, 0.2);
+        }
+
+        .category-tag i {
+            cursor: pointer;
+        }
+
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .chat-header {
+            padding: 16px 24px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-content: space-between;
+        }
+
+        .chat-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .tips-carousel {
+            padding: 12px 24px;
+            background: linear-gradient(90deg, rgba(79, 70, 229, 0.1), rgba(236, 72, 153, 0.1));
+            border-bottom: 1px solid #d1d5db;
+            text-align: center;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--primary-color);
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+        }
+
+        .messages {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            background-color: var(--card-bg);
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 14px 20px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            position: relative;
+            animation: fadeIn 0.4s ease;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .bot-message {
+            align-self: flex-start;
+            background-color: rgba(79, 70, 229, 0.15);
+            color: var(--text-color);
+            border-bottom-left-radius: 4px;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: var(--light-text);
+            margin-top: 8px;
+            text-align: right;
+            opacity: 0.8;
+        }
+
+        .user-message .message-time {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .loading-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 12px 16px;
+            background-color: rgba(79, 70, 229, 0.1);
+            border-radius: 16px;
+            align-self: flex-start;
+        }
+
+        .loading-dot {
+            width: 10px;
+            height: 10px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            animation: loading 1s infinite;
+        }
+
+        .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+        .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes loading {
+            0%, 80%, 100% { transform: scale(1); }
+            40% { transform: scale(1.6); }
+        }
+
+        .input-area {
+            padding: 16px;
+            background-color: var(--card-bg);
+            border-top: 1px solid #d1d5db;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 24px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            font-size: 15px;
+            transition: var(--transition);
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+
+        .send-btn {
+            background-color: var(--primary-color);
+            border: none;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            color: white;
+        }
+
+        .send-btn:hover {
+            background-color: var(--secondary-color);
+            transform: scale(1.1);
+        }
+
+        .quick-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 12px 24px;
+            border-bottom: 1px solid #d1d5db;
+        }
+
+        .quick-action-btn {
+            padding: 10px 16px;
+            background-color: var(--card-bg);
+            border: 1px solid #d1d5db;
+            border-radius: 24px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .quick-action-btn:hover {
+            background: linear-gradient(90deg, rgba(79, 70, 229, 0.1), rgba(59, 130, 246, 0.1));
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .chart-container {
+            margin-top: 16px;
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .budget-summary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .budget-summary h3 {
+            margin-bottom: 16px;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .budget-summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        .expense-list {
+            max-height: 220px;
+            overflow-y: auto;
+            margin-top: 12px;
+        }
+
+        .expense-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #d1d5db;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .chat-container {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .sidebar {
+                width: 100%;
+                margin-bottom: 24px;
+            }
+
+            .message {
+                max-width: 90%;
+            }
+
+            .logo h1 {
+                font-size: 24px;
+            }
+
+            .theme-toggle {
+                padding: 8px 16px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <header class="header">
-        <a href="#home" class="logo">Ravi <span>Ranjan</span></a>
-
-        <i class='bx bx-menu' id="menu-icon">
-            <a href="#navbar"></a>
-        </i>
-        <nav class="navbar">
-            <a href="#home" class="active">Home</a>
-            <a href="#education">Education</a>
-            <a href="#services">Services</a>
-            <a href="#skills">Skills</a>
-            <a href="#projects">Projects</a>
-            <a href="#contact">Contact</a>
-            <a href="#cv">My Resume</a>
-        </nav>
-    </header>
-
-    <section class="home" id="home">
-        <div class="home-content">
-            <h1>Hi, It's <span>Ravi</span></h1>
-            <h3 class="text-animation">I'm a <span></span></h3>
-            <p>Welcome to my portfolio here you will know about my skill and projects</p>
-            <div class="social-icons">
-                <a href="https://www.linkedin.com/in/ravi2006/" target="_blank"><i class='bx bxl-linkedin'></i></a>
-                <a href="https://www.instagram.com/raviranjankashyap7/?hl=en" target="_blank"><i class='bx bxl-instagram'></i></a>
-                <a href="https://github.com/Raviranjan010" target="_blank"><i class='bx bxl-github'></i></a>
-                <a href="https://www.youtube.com/@Helping_peoples6?sub_confirmation=1" target="_blank"><i class="fa-brands fa-youtube"></i></a>
-                <a href="#skills" target="_blank"><i class="fa-solid fa-code"></i></a>
-                <a href="https://www.udemy.com/user/ravi-ranjan-1198/" target="_blank"><i class="fa-solid fa-certificate"></i></a>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <img src="https://via.placeholder.com/48" alt="Budget Bot Logo">
+                <h1>AI Budget Bot</h1>
             </div>
-            <div class="btn-group">
-                <a href="#mailto:raviranjan01b@gmail.com" class="btn">Hire Me</a>
-                <a href="#contact" class="btn">Contact Me</a>
-            </div>
-        </div>
-        <div class="home-img">
-            <img src="profile1.jpg" alt="Profile Image" class="profile-img">
-        </div>
-    </section>
-    
+            <button class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i>
+                <span>Dark Mode</span>
+            </button>
+        </header>
 
-
-    <section class="about" id="about">
-        <h2>About Me</h2>
-        <div class="about-content">
-            <p>Hi, I'm Ravi Ranjan, a passionate web developer with a knack for creating intuitive and user-friendly interfaces. With a background in UI/UX design, web development, data analysis, and graphic design, I bring a diverse set of skills to the table. I love transforming ideas into digital experiences that are not only visually appealing but also highly functional.</p>
-            <p>With a strong foundation in modern technologies and a keen eye for detail, I strive to deliver high-quality work that meets and exceeds client expectations. Whether it's building responsive websites, analyzing data to provide actionable insights, or crafting captivating graphics, I am dedicated to continuous learning and improvement.</p>
-            <p>Let's work together to bring your ideas to life!</p>
-        </div>
-    </section>
-      
-
-
-    
-    
-    
-    
-    
-    
-    
-
-
-
-
-    <section class="education" id="education">
-        <h2 class="heading">Education</h2>
-        <div class="education-container">
-            <div class="education-card">
-                <div class="card-content">
-                    <div class="education-icon"><i class='bx bxs-school'></i></div>
-                    <h3>Patliputra Central School</h3>
-                    <p>Secondary School</p>
-                    <div class="progress-bar">
-                        <div class="progress" style="width: 100%;"></div>
-                    </div>
-                    <span class="year">2021</span>
-                </div>
-            </div>
-            <div class="education-card">
-                <div class="card-content">
-                    <div class="education-icon"><i class='bx bxs-school'></i></div>
-                    <h3>New Patliputra Central School</h3>
-                    <p>High School - 11th and 12th</p>
-                    <div class="progress-bar">
-                        <div class="progress" style="width: 100%;"></div>
-                    </div>
-                    <span class="year">2021-2023</span>
-                </div>
-            </div>
-            <div class="education-card">
-                <div class="card-content">
-                    <div class="education-icon"><i class='bx bxs-graduation'></i></div>
-                    <h3>Lovely Professional University</h3>
-                    <p>Bachelor's degree in Computer Science and Engineering</p>
-                    <div class="progress-bar">
-                        <div class="progress" style="width: 0;"></div>
-                    </div>
-                    <span class="year">second year</span>
-                </div>
-            </div>
-            <div class="education-card">
-                <div class="card-content">
-                    <div class="education-icon"><i class='bx bxs-briefcase'></i></div>
-                    <h3>Internship</h3>
-                    <p>Various roles in the industry</p>
-                    <div class="progress-bar">
-                        <div class="progress" style="width: 0%;">
-                            <a href="#"></a>
+        <div class="chat-container">
+            <div class="sidebar">
+                <div class="sidebar-section">
+                    <h2 class="sidebar-title"><i class="fas fa-wallet"></i> Budget Setup</h2>
+                    <form class="budget-form" id="budgetForm">
+                        <div class="form-group">
+                            <label for="income">Monthly Income</label>
+                            <input type="number" id="income" placeholder="Enter monthly income" required>
                         </div>
-                    </div>
-                    <span class="year">applied</span>
+                        <div class="form-group">
+                            <label for="expenseLimit">Expense Limit</label>
+                            <input type="number" id="expenseLimit" placeholder="Set expense limit" required>
+                        </div>
+                        <button type="submit" class="btn" id="calculateBudget">
+                            <i class="fas fa-calculator"></i> Calculate
+                        </button>
+                    </form>
                 </div>
-            </div>
-        </div>
-    </section>
-    
-    
-    
-    <section class="services" id="services">
-        <h2 class="heading">My Services</h2>
-        <div class="services-container">
-            <div class="service-card" onmouseover="addSmokyEffect(this)" onmouseout="removeSmokyEffect(this)">
-                <div class="service-icon"><i class='bx bxs-cog'></i></div>
-                <h3>UI/UX Design</h3>
-                <p>Creating intuitive and user-friendly interfaces for better user experience.</p>
-            </div>
-            <div class="service-card" onmouseover="addSmokyEffect(this)" onmouseout="removeSmokyEffect(this)">
-                <div class="service-icon"><i class='bx bxs-code'></i></div>
-                <h3>Web Development</h3>
-                <p>Building responsive and dynamic websites with modern technologies.</p>
-            </div>
-            <div class="service-card" onmouseover="addSmokyEffect(this)" onmouseout="removeSmokyEffect(this)">
-                <div class="service-icon"><i class='bx bxs-data'></i></div>
-                <h3>Data Analysis</h3>
-                <p>Analyzing and visualizing data to provide actionable insights.</p>
-            </div>
-            <div class="service-card" onmouseover="addSmokyEffect(this)" onmouseout="removeSmokyEffect(this)">
-                <div class="service-icon"><i class='bx bxs-brush'></i></div>
-                <h3>Graphic Design</h3>
-                <p>Designing captivating graphics and visuals for various media.</p>
-            </div>
-        </div>
-    </section>
-    
 
-    
-    
-
-    <section class="skills" id="skills">
-        <h2 class="heading">Skills</h2>
-        <div class="skills-container">
-            <a href="https://www.cloudskillsboost.google/public_profiles/2ffe4c67-58f0-4a74-b876-040f6503423a" target="_blank" class="skill-card">
-                <div class="card-front">
-                    <img src="google-cloud.256x206.png" alt="Google Cloud">
-                    <span>Google Cloud</span>
-                </div>
-            </a>
-    
-            <a href="https://www.hackerrank.com/profile/raviranjan01b" target="_blank" class="skill-card">
-                <div class="card-front">
-                    <img src="hackerrank1.png" alt="Hackerrank">
-                    <span>Hackerrank</span>
-                </div>
-            </a>
-            
-            <a href="https://leetcode.com/u/Ravi-Ranjajn/" target="_blank" class="skill-card">
-                <div class="card-front">
-                    <img src="leetcode (3).png" alt="Leetcode">
-                    <span>Leetcode</span>
-                </div>
-            </a>
-            
-            <a href="https://www.figma.com/files/team/1313458300332182271/user/1313458297977654582?fuid=1313458297977654582" target="_blank" class="skill-card">
-                <div class="card-front">
-                    <img src="figma.png" alt="Figma">
-                    <span>Figma</span>
-                </div>
-            </a>
-            
-            <a href="https://wordpress.com/" target="_blank" class="skill-card">
-                <div class="card-front">
-                    <img src="wordpress.256x256.png" alt="Wordpress">
-                    <span>Wordpress</span>
-                </div>
-            </a>
-            
-            <a href="https://www.adobe.com/products/photoshop.html" target="_blank" class="skill-card">
-                <div class="card-front">
-                    <img src="adobe-photoshop.256x256.png" alt="Photoshop">
-                    <span>Photoshop</span>
-                </div>
-            </a>
-            
-            <a href="https://www.python.org/" target="_blank" class="skill-card">
-                <div class="card-front">
-                    <img src="python.256x254.png" alt="Python">
-                    <span>Python</span>
-                </div>
-            </a>
-        </div>
-    </section>
-    
-
-
-    <section class="projects" id="projects">
-        <h2 class="heading">Latest <span>Project</span></h2>
-        <div class="portfolio-content">
-            <div class="project-card">
-                <div class="project-image">
-                    <img src="login.jpg" alt="Login Page">
-                    <div class="project-info">
-                        <h3>Login-page</h3>
-                        <p>The Login and Register Page project is a fundamental web application designed to provide user authentication functionality, including account creation and login processes. This project showcases my skills in frontend development, user interface design, and backend integration, ensuring a secure and user-friendly authentication system.</p>
-                        <a href="https://github.com/Raviranjan010/loginpagebyraviranjan" target="_blank">
-                            <i class='bx bx-link-external'></i>
-                        </a>
+                <div class="sidebar-section">
+                    <h2 class="sidebar-title"><i class="fas fa-tags"></i> Track Expenses</h2>
+                    <form class="expense-form" id="expenseForm">
+                        <div class="form-group">
+                            <label for="expenseAmount">Amount</label>
+                            <input type="number" id="expenseAmount" placeholder="Enter amount" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="expenseCategory">Category</label>
+                            <select id="expenseCategory" required>
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-secondary">
+                            <i class="fas fa-plus"></i> Add Expense
+                        </button>
+                    </form>
+                    <div class="expense-list" id="expenseList">
+                        <!-- Expenses listed here -->
                     </div>
                 </div>
-            </div>
-        </div>
-    </section>
-    
 
-    
-    
-
-    
-    
-    
-
-    <section class="contact" id="contact">
-        <h2 class="heading">Contact <span>Me</span></h2>
-        <form action="send_email.php" method="POST">
-            <div class="input-group">
-                <div class="input-box">
-                    <input type="text" name="name" placeholder="Full Name" required>
-                    <input type="email" name="email" placeholder="Email" required>
+                <div class="sidebar-section">
+                    <h2 class="sidebar-title"><i class="fas fa-list"></i> Categories</h2>
+                    <form class="category-form" id="categoryForm">
+                        <div class="form-group">
+                            <label for="newCategory">New Category</label>
+                            <input type="text" id="newCategory" placeholder="Enter category name">
+                        </div>
+                        <button type="submit" class="btn btn-secondary">
+                            <i class="fas fa-plus"></i> Add
+                        </button>
+                    </form>
+                    <div class="categories-list" id="categoriesList">
+                        <!-- Categories listed here -->
+                    </div>
                 </div>
-                <div class="input-box">
-                    <input type="number" name="phone" placeholder="Phone no." required>
-                    <input type="text" name="subject" placeholder="Subject" required>
+
+                <div class="sidebar-section">
+                    <h2 class="sidebar-title"><i class="fas fa-chart-bar"></i> Analysis</h2>
+                    <div class="form-group">
+                        <select id="analysisPeriod">
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly" selected>Monthly</option>
+                            <option value="yearly">Yearly</option>
+                        </select>
+                        <button class="btn btn-secondary" id="analyzeBudget" style="margin-top: 12px;">
+                            <i class="fas fa-chart-pie"></i> Analyze
+                        </button>
+                    </div>
+                    <button class="btn" id="exportCSV" style="margin-top: 12px;">
+                        <i class="fas fa-file-csv"></i> Export CSV
+                    </button>
                 </div>
             </div>
-            <div class="input-group-2">
-                <textarea name="message" cols="30" rows="10" placeholder="Your Message......" required></textarea>
-                <input type="submit" value="Send Message" class="btn">
-            </div>
-        </form>
-        <section class="cv" id="cv">
-            <h2 class="heading">Download CV</h2>
-            <a href="__resume (2).pdf" download class="cv-button">Download CV</a>
-        </section>
-    </section>
-    
 
-    
-    
-
-    <footer class="footer">
-        <div class="social">
-            <a href="https://www.linkedin.com/in/ravi2006/" target="_blank"><i class='bx bxl-linkedin'></i></a>
-            <a href="https://www.instagram.com/raviranjankashyap7/?hl=en" target="_blank"><i class='bx bxl-instagram'></i></a>
-            <a href="https://github.com/Raviranjan010" target="_blank"><i class='bx bxl-github'></i></a>
-            <a href="https://www.youtube.com/@Helping_peoples6?sub_confirmation=1" target="_blank"><i class="fa-brands fa-youtube"></i></a>
-                    
-        </div>
-
-        <ul class="list">
-            <li>
-                <a href="#">FAQ</a>
-            </li>
-            <li>
-                <a href="#services">Services</a>
-            </li>
-            <li>
-                <a href="#contact">Contact</a>
-            </li>
-            <li>
-                <a href="#about">About me</a>
-            </li>
-        </ul>
-        <div class="send-email" style="display: flex; justify-content: center; align-items: center;">
-            <div style="display: flex; align-items: center;">
-                <span style="font-size: 1.5rem; margin-right: 10px;">
-                    ✉️
-                </span>
-                <a href="mailto:raviranjan01b@gmail.com" style="font-size: 1.6rem; color: var(--main-color); text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='#ff6347';" onmouseout="this.style.color='var(--main-color)';">raviranjan01b@gmail.com</a>
+            <div class="chat-area">
+                <div class="chat-header">
+                    <h2>Budget Assistant</h2>
+                    <button class="btn btn-secondary" id="clearChat">
+                        <i class="fas fa-trash"></i> Clear Chat
+                    </button>
+                </div>
+                <div class="tips-carousel" id="tipsCarousel">
+                    <!-- Tips rotate here -->
+                </div>
+                <div class="quick-actions">
+                    <button class="quick-action-btn" onclick="sendMessage('Show my budget')">Show Budget</button>
+                    <button class="quick-action-btn" onclick="sendMessage('Savings tips')">Savings Tips</button>
+                    <button class="quick-action-btn" onclick="sendMessage('Analyze my spending')">Analyze Spending</button>
+                    <button class="quick-action-btn" onclick="sendMessage('Recent expenses')">Recent Expenses</button>
+                </div>
+                <div class="messages" id="messages">
+                    <!-- Messages added dynamically -->
+                </div>
+                <div class="input-area">
+                    <input type="text" class="message-input" id="messageInput" placeholder="Ask about your budget...">
+                    <button class="send-btn" id="sendBtn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
             </div>
         </div>
-        
-           
-            
-        <p class="copyright">
-            @ Ravi Ranjan Kashyap | All Rights reserved
-        </p>
-    </footer>
-    
-    <script src="script.js"></script>
+    </div>
+
+    <script>
+        // DOM Elements
+        const themeToggle = document.getElementById('themeToggle');
+        const budgetForm = document.getElementById('budgetForm');
+        const incomeInput = document.getElementById('income');
+        const expenseLimitInput = document.getElementById('expenseLimit');
+        const expenseForm = document.getElementById('expenseForm');
+        const expenseAmountInput = document.getElementById('expenseAmount');
+        const expenseCategorySelect = document.getElementById('expenseCategory');
+        const categoryForm = document.getElementById('categoryForm');
+        const newCategoryInput = document.getElementById('newCategory');
+        const categoriesList = document.getElementById('categoriesList');
+        const expenseList = document.getElementById('expenseList');
+        const analysisPeriod = document.getElementById('analysisPeriod');
+        const analyzeBudgetBtn = document.getElementById('analyzeBudget');
+        const exportCSVBtn = document.getElementById('exportCSV');
+        const messagesContainer = document.getElementById('messages');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const clearChatBtn = document.getElementById('clearChat');
+        const tipsCarousel = document.getElementById('tipsCarousel');
+
+        // State
+        let budgetData = {
+            income: 0,
+            expenseLimit: 0,
+            expenses: [],
+            categories: ['Housing', 'Food', 'Transport', 'Entertainment'],
+            chatHistory: []
+        };
+
+        let budgetChart = null;
+        const tips = [
+            'Save 20% of your income monthly for financial freedom.',
+            'Track small expenses to avoid overspending.',
+            'Review your budget weekly to stay on top of finances.',
+            'Set clear savings goals to stay motivated.'
+        ];
+        let currentTipIndex = 0;
+
+        // Initialize
+        function init() {
+            loadData();
+            renderCategories();
+            renderExpenses();
+            renderChatHistory();
+            setupEventListeners();
+            startTipsCarousel();
+            if (localStorage.getItem('theme') === 'dark') toggleTheme();
+        }
+
+        // Load data
+        function loadData() {
+            const savedData = localStorage.getItem('budgetData');
+            if (savedData) {
+                try {
+                    budgetData = JSON.parse(savedData);
+                    incomeInput.value = budgetData.income || '';
+                    expenseLimitInput.value = budgetData.expenseLimit || '';
+                } catch (e) {
+                    console.error('Error parsing localStorage data:', e);
+                }
+            }
+        }
+
+        // Save data
+        function saveData() {
+            try {
+                localStorage.setItem('budgetData', JSON.stringify(budgetData));
+                localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+            } catch (e) {
+                console.error('Error saving to localStorage:', e);
+            }
+        }
+
+        // Render categories
+        function renderCategories() {
+            expenseCategorySelect.innerHTML = budgetData.categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+            categoriesList.innerHTML = budgetData.categories.map(cat => `
+                <div class="category-tag">
+                    ${cat}
+                    <i class="fas fa-times" onclick="removeCategory('${cat}')"></i>
+                </div>
+            `).join('');
+        }
+
+        // Render expenses
+        function renderExpenses() {
+            expenseList.innerHTML = budgetData.expenses.map(exp => `
+                <div class="expense-item">
+                    <span>${exp.category}: $${exp.amount.toFixed(2)}</span>
+                    <span>${new Date(exp.date).toLocaleDateString()}</span>
+                </div>
+            `).join('');
+        }
+
+        // Render chat history
+        function renderChatHistory() {
+            messagesContainer.innerHTML = '';
+            if (!budgetData.chatHistory.length) {
+                const welcomeMessage = `
+                    <div class="message bot-message">
+                        <p>👋 Welcome to AI Budget Bot! I'm here to help you manage your finances.</p>
+                        <ul style="margin-left: 20px; list-style: disc;">
+                            <li>Track expenses and set budgets</li>
+                            <li>Analyze spending patterns</li>
+                            <li>Get personalized savings tips</li>
+                        </ul>
+                        <p>Ask: "How can I save more?" or use the sidebar to get started.</p>
+                        <div class="message-time">${formatTime(new Date())}</div>
+                    </div>
+                `;
+                budgetData.chatHistory.push({ sender: 'bot', message: welcomeMessage, time: new Date().toISOString() });
+            }
+
+            budgetData.chatHistory.forEach(msg => {
+                const messageElement = document.createElement('div');
+                messageElement.className = `message ${msg.sender}-message`;
+                messageElement.innerHTML = `
+                    ${msg.message}
+                    <div class="message-time">${formatTime(new Date(msg.time))}</div>
+                `;
+                messagesContainer.appendChild(messageElement);
+            });
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            saveData();
+        }
+
+        // Start tips carousel
+        function startTipsCarousel() {
+            function showNextTip() {
+                tipsCarousel.textContent = tips[currentTipIndex];
+                gsap.from(tipsCarousel, { opacity: 0, y: 10, duration: 0.6, ease: 'power2.out' });
+                currentTipIndex = (currentTipIndex + 1) % tips.length;
+            }
+            showNextTip();
+            setInterval(showNextTip, 6000);
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            themeToggle.addEventListener('click', toggleTheme);
+            budgetForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                calculateBudget();
+            });
+            expenseForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                addExpense();
+            });
+            categoryForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                addCategory();
+            });
+            analyzeBudgetBtn.addEventListener('click', analyzeBudget);
+            exportCSVBtn.addEventListener('click', exportToCSV);
+            sendBtn.addEventListener('click', () => sendMessage());
+            messageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendMessage();
+            });
+            clearChatBtn.addEventListener('click', clearChat);
+        }
+
+        // Toggle theme
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            themeToggle.innerHTML = `<i class="fas fa-${isDark ? 'sun' : 'moon'}"></i><span>${isDark ? 'Light' : 'Dark'} Mode</span>`;
+            saveData();
+        }
+
+        // Format time
+        function formatTime(date) {
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Add message
+        function addMessage(sender, message, animate = true) {
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${sender}-message ${animate ? 'fadeIn' : ''}`;
+            messageElement.innerHTML = `
+                ${message}
+                <div class="message-time">${formatTime(new Date())}</div>
+            `;
+            messagesContainer.appendChild(messageElement);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            budgetData.chatHistory.push({ sender, message, time: new Date().toISOString() });
+            saveData();
+            if (animate) gsap.from(messageElement, { opacity: 0, y: 15, duration: 0.4, ease: 'power2.out' });
+        }
+
+        // Calculate budget
+        function calculateBudget() {
+            const income = parseFloat(incomeInput.value);
+            const expenseLimit = parseFloat(expenseLimitInput.value);
+            if (isNaN(income) || isNaN(expenseLimit)) {
+                addMessage('bot', 'Please enter valid numbers for income and expense limit.');
+                return;
+            }
+
+            budgetData.income = income;
+            budgetData.expenseLimit = expenseLimit;
+            const totalExpenses = budgetData.expenses.reduce((sum, exp) => sum + exp.amount, 0);
+            const remaining = income - totalExpenses;
+
+            const message = `
+                <div class="budget-summary">
+                    <h3>Budget Summary</h3>
+                    <div class="budget-summary-item">
+                        <span>Monthly Income:</span>
+                        <span>$${income.toFixed(2)}</span>
+                    </div>
+                    <div class="budget-summary-item">
+                        <span>Expense Limit:</span>
+                        <span>$${expenseLimit.toFixed(2)}</span>
+                    </div>
+                    <div class="budget-summary-item">
+                        <span>Total Expenses:</span>
+                        <span>$${totalExpenses.toFixed(2)}</span>
+                    </div>
+                    <div class="budget-summary-item">
+                        <span>Remaining:</span>
+                        <span>$${remaining.toFixed(2)}</span>
+                    </div>
+                </div>
+                <p>${totalExpenses > expenseLimit ? '<span style="color: var(--accent-color);">⚠️ Warning: Your expenses exceed your limit! Try cutting back on discretionary spending.</span>' : 'Great job staying within your budget!'}</p>
+            `;
+            addMessage('bot', message);
+            saveData();
+        }
+
+        // Add expense
+        function addExpense() {
+            const amount = parseFloat(expenseAmountInput.value);
+            const category = expenseCategorySelect.value;
+            if (isNaN(amount) || amount <= 0) {
+                addMessage('bot', 'Please enter a valid amount.');
+                return;
+            }
+
+            budgetData.expenses.push({ amount, category, date: new Date() });
+            renderExpenses();
+            expenseAmountInput.value = '';
+            saveData();
+            addMessage('bot', `Added expense: $${amount.toFixed(2)} to ${category}`);
+            if (budgetData.expenses.reduce((sum, exp) => sum + exp.amount, 0) > budgetData.expenseLimit) {
+                addMessage('bot', '<span style="color: var(--accent-color);">⚠️ Your expenses have exceeded your limit! Review your spending.</span>');
+            }
+        }
+
+        // Add category
+        function addCategory() {
+            const category = newCategoryInput.value.trim();
+            if (!category) {
+                addMessage('bot', 'Please enter a category name.');
+                return;
+            }
+            if (budgetData.categories.includes(category)) {
+                addMessage('bot', `Category "${category}" already exists.`);
+                return;
+            }
+
+            budgetData.categories.push(category);
+            renderCategories();
+            newCategoryInput.value = '';
+            saveData();
+            addMessage('bot', `Added category: ${category}`);
+        }
+
+        // Remove category
+        window.removeCategory = function(category) {
+            if (budgetData.expenses.some(exp => exp.category === category)) {
+                addMessage('bot', `Cannot remove "${category}" as it has associated expenses.`);
+                return;
+            }
+            budgetData.categories = budgetData.categories.filter(c => c !== category);
+            renderCategories();
+            saveData();
+            addMessage('bot', `Removed category: ${category}`);
+        };
+
+        // Analyze budget
+        function analyzeBudget() {
+            if (!budgetData.expenses.length) {
+                addMessage('bot', 'No expenses to analyze. Add some expenses first.');
+                return;
+            }
+
+            const period = analysisPeriod.value;
+            let labels, data, chartType = 'bar';
+            if (period === 'weekly') {
+                labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+                data = labels.map((_, i) => {
+                    const start = new Date();
+                    start.setDate(start.getDate() - (28 - i * 7));
+                    const end = new Date(start);
+                    end.setDate(end.getDate() + 7);
+                    return budgetData.expenses
+                        .filter(exp => new Date(exp.date) >= start && new Date(exp.date) < end)
+                        .reduce((sum, exp) => sum + exp.amount, 0);
+                });
+            } else if (period === 'monthly') {
+                labels = budgetData.categories;
+                data = labels.map(cat => budgetData.expenses
+                    .filter(exp => exp.category === cat)
+                    .reduce((sum, exp) => sum + exp.amount, 0));
+            } else {
+                labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                data = labels.map((_, i) => budgetData.expenses
+                    .filter(exp => new Date(exp.date).getMonth() === i)
+                    .reduce((sum, exp) => sum + exp.amount, 0));
+            }
+
+            const chartId = `chart-${Date.now()}`;
+            const message = `
+                <div class="chart-container">
+                    <h3>${period.charAt(0).toUpperCase() + period.slice(1)} Analysis</h3>
+                    <canvas id="${chartId}" style="max-height: 250px;"></canvas>
+                </div>
+                <p>${generateAnalysisSummary(data)}</p>
+            `;
+            addMessage('bot', message);
+            renderChart(chartId, labels, data, chartType);
+        }
+
+        // Generate analysis summary
+        function generateAnalysisSummary(data) {
+            const total = data.reduce((sum, val) => sum + val, 0);
+            const avg = total / data.length;
+            const maxIndex = data.indexOf(Math.max(...data));
+            const maxCategory = budgetData.categories[maxIndex] || 'Unknown';
+            return `Total expenses: $${total.toFixed(2)}. Average: $${avg.toFixed(2)}. Highest spending in ${maxCategory} ($${Math.max(...data).toFixed(2)}). ${total > budgetData.expenseLimit ? `Consider reducing spending in ${maxCategory}.` : 'You’re managing your budget well!'}`;
+        }
+
+        // Render chart
+        function renderChart(chartId, labels, data, type) {
+            const ctx = document.getElementById(chartId)?.getContext('2d');
+            if (!ctx) {
+                console.error('Canvas context not found for chart:', chartId);
+                return;
+            }
+            if (budgetChart) budgetChart.destroy();
+
+            budgetChart = new Chart(ctx, {
+                type,
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Expenses ($)',
+                        data,
+                        backgroundColor: 'rgba(79, 70, 229, 0.5)',
+                        borderColor: '#4f46e5',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: { enabled: true },
+                        title: { display: true, text: 'Expense Breakdown', font: { size: 16 } }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Amount ($)' } }
+                    }
+                }
+            });
+            gsap.from(`#${chartId}`, { opacity: 0, y: 20, duration: 1, ease: 'power2.out' });
+        }
+
+        // Export to CSV
+        function exportToCSV() {
+            const headers = ['Date,Category,Amount'];
+            const expenseRows = budgetData.expenses.map(exp => `${new Date(exp.date).toLocaleDateString()},${exp.category},${exp.amount.toFixed(2)}`);
+            const summary = [
+                `Summary,,`,
+                `Income,$${budgetData.income.toFixed(2)},`,
+                `Expense Limit,$${budgetData.expenseLimit.toFixed(2)},`,
+                `Total Expenses,$${budgetData.expenses.reduce((sum, exp) => sum + exp.amount, 0).toFixed(2)},`
+            ];
+            const csv = [headers, ...expenseRows, '', ...summary].join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'budget_export.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+            addMessage('bot', 'Exported budget data to CSV.');
+        }
+
+        // Clear chat
+        function clearChat() {
+            if (confirm('Are you sure you want to clear the chat history?')) {
+                budgetData.chatHistory = [];
+                renderChatHistory();
+                addMessage('bot', 'Chat history cleared. How can I assist you now?');
+            }
+        }
+
+        // Send message
+        async function sendMessage(query = null) {
+            const message = query || messageInput.value.trim();
+            if (!message) {
+                addMessage('bot', 'Please enter a message to send.');
+                return;
+            }
+
+            addMessage('user', message);
+            if (!query) messageInput.value = '';
+
+            // Show loading indicator
+            const loadingId = `loading-${Date.now()}`;
+            addMessage('bot', `<div class="loading-indicator" id="${loadingId}"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div>`, false);
+
+            // Simulate API delay (1-2 seconds)
+            await new Promise(resolve => setTimeout(resolve, Math.random() * 1000 + 1000));
+            const loadingElement = document.getElementById(loadingId);
+            if (loadingElement) loadingElement.remove();
+
+            try {
+                await processQuery(message);
+            } catch (e) {
+                console.error('Error processing query:', e);
+                addMessage('bot', 'Sorry, something went wrong. Please try again.');
+            }
+        }
+
+        // Process query with mock xAI Grok API
+        async function processQuery(query) {
+            query = query.toLowerCase().trim();
+            let response;
+
+            try {
+                if (query.includes('budget') || query.includes('summary')) {
+                    calculateBudget();
+                    return;
+                } else if (query.includes('analyze') || query.includes('spending') || query.includes('trend')) {
+                    analyzeBudget();
+                    return;
+                } else if (query.includes('save') || query.includes('tip') || query.includes('savings')) {
+                    const totalExpenses = budgetData.expenses.reduce((sum, exp) => sum + exp.amount, 0);
+                    const savingsPotential = budgetData.income - totalExpenses;
+                    const savingsPercent = budgetData.income > 0 ? ((savingsPotential / budgetData.income) * 100).toFixed(1) : 0;
+                    response = `You can save $${savingsPotential.toFixed(2)} this month (${savingsPercent}% of your income). To maximize savings, allocate 20% ($${((budgetData.income * 0.2).toFixed(2))}) to a savings account and reduce spending in ${budgetData.categories[0] || 'non-essential categories'} by 10%.`;
+                } else if (query.includes('expense') || query.includes('spend') || query.includes('recent')) {
+                    const recentExpenses = budgetData.expenses.slice(-3).map(exp => `- ${exp.category}: $${exp.amount.toFixed(2)} (${new Date(exp.date).toLocaleDateString()})`).join('<br>');
+                    response = recentExpenses ? `Recent expenses:<br>${recentExpenses}` : 'No expenses recorded yet. Add some in the Track Expenses section.';
+                } else if (query.includes('category') || query.includes('categories')) {
+                    response = `Current categories: ${budgetData.categories.join(', ')}. You can add or remove categories in the Categories section.`;
+                } else if (query.includes('how much') || query.includes('left') || query.includes('remain')) {
+                    const totalExpenses = budgetData.expenses.reduce((sum, exp) => sum + exp.amount, 0);
+                    const remaining = budgetData.income - totalExpenses;
+                    response = `You have $${remaining.toFixed(2)} remaining this month after expenses. ${remaining < 0 ? 'Consider cutting back on non-essential spending.' : 'Keep up the good budgeting!'} `;
+                } else {
+                    response = `I can assist with budget summaries, expense tracking, savings tips, or category management. Try asking: "Show my budget", "Recent expenses", or "How can I save more?"`;
+                }
+
+                addMessage('bot', response);
+            } catch (e) {
+                console.error('Error in processQuery:', e);
+                addMessage('bot', 'Oops, something went wrong while processing your request. Please try again.');
+            }
+        }
+
+        // Initialize
+        init();
+    </script>
 </body>
 </html>
