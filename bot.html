@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BudgetBot | Your Financial Assistant</title>
+    <!-- Linking Google fonts for icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,1,0" />
+    <link rel="stylesheet" href="bot.css" />
+</head>
+<body>
+  <!-- Chatbot Toggler -->
+  <button id="chatbot-toggler">
+    <span class="material-symbols-rounded">account_balance_wallet</span>
+    <span class="material-symbols-rounded">close</span>
+  </button>
+
+  <div class="chatbot-popup">
+    <!-- Chatbot Header -->
+    <div class="chat-header">
+      <div class="header-info">
+        <span class="chatbot-logo material-symbols-rounded">savings</span>
+        <h2 class="logo-text">BudgetBot</h2>
+      </div>
+      <button id="close-chatbot" class="material-symbols-rounded">keyboard_arrow_down</button>
+    </div>
+
+    <!-- Chatbot Body -->
+    <div class="chat-body">
+      <div class="message bot-message">
+        <span class="bot-avatar material-symbols-rounded">account_balance</span>
+        <div class="message-text">
+          👋 Hello! I'm BudgetBot, your personal finance assistant.
+          <br /><br />
+          I can help you with:
+          <ul>
+            <li>Budget planning & advice</li>
+            <li>Expense tracking tips</li>
+            <li>Saving strategies</li>
+            <li>Investment basics</li>
+            <li>Debt management</li>
+          </ul>
+          <br />
+          How can I help with your finances today?
+        </div>
+      </div>
+    </div>
+
+    <!-- Chatbot Footer -->
+    <div class="chat-footer">
+      <form action="#" class="chat-form">
+        <textarea placeholder="Ask about your finances..." class="message-input" required></textarea>
+        <div class="chat-controls">
+          <button type="button" id="emoji-picker" class="material-symbols-outlined">sentiment_satisfied</button>
+          <button type="button" id="budget-calculator" class="material-symbols-outlined">calculate</button>
+          <div class="file-upload-wrapper">
+            <input type="file" accept="image/*,.pdf,.csv,.xlsx" id="file-input" hidden />
+            <img src="#" />
+            <button type="button" id="file-upload" class="material-symbols-rounded">attach_file</button>
+            <button type="button" id="file-cancel" class="material-symbols-rounded">close</button>
+          </div>
+          <button type="submit" id="send-message" class="material-symbols-rounded">arrow_upward</button>
+        </div>
+      </form>
+    </div>
+    
+    <!-- Budget Calculator Modal -->
+    <div id="calculator-modal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Quick Budget Calculator</h3>
+          <span class="close-modal">&times;</span>
+        </div>
+        <div class="modal-body">
+          <div class="input-group">
+            <label for="income">Monthly Income:</label>
+            <input type="number" id="income" placeholder="Enter your income">
+          </div>
+          <div class="input-group">
+            <label for="expenses">Essential Expenses:</label>
+            <input type="number" id="expenses" placeholder="Rent, utilities, food, etc.">
+          </div>
+          <div class="results">
+            <div class="result-item">
+              <span>50% Needs:</span>
+              <span id="needs-value">$0</span>
+            </div>
+            <div class="result-item">
+              <span>30% Wants:</span>
+              <span id="wants-value">$0</span>
+            </div>
+            <div class="result-item">
+              <span>20% Savings:</span>
+              <span id="savings-value">$0</span>
+            </div>
+            <div class="result-item highlight">
+              <span>Remaining Budget:</span>
+              <span id="remaining-value">$0</span>
+            </div>
+          </div>
+          <button id="calculate-btn">Calculate</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Linking Emoji Mart script for emoji picker -->
+  <script src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js"></script>
+
+  <!-- Linking custom script -->
+  <script src="bot.js"></script>
+</body>
+</html>
