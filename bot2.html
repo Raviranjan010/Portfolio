@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Budget Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4cc9f0;
+            --warning-color: #f72585;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        .dark-mode {
+            --primary-color: #4895ef;
+            --secondary-color: #4361ee;
+            --accent-color: #3f37c9;
+            --light-color: #212529;
+            --dark-color: #f8f9fa;
+            --success-color: #4cc9f0;
+            --warning-color: #f72585;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            transition: var(--transition);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-mode header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: var(--primary-color);
+        }
+
+        .mode-toggle {
+            background: var(--primary-color);
+            color: var(--light-color);
+            border: none;
+            padding: 8px 15px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .mode-toggle:hover {
+            background: var(--secondary-color);
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+
+        .dark-mode .summary-card {
+            background: #2b2d42;
+        }
+
+        .summary-card h2 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #ddd;
+        }
+
+        .dark-mode .summary-item {
+            border-bottom: 1px dashed #444;
+        }
+
+        .progress-container {
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .dark-mode .progress-container {
+            background: #495057;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dark-mode .category-card {
+            background: #2b2d42;
+        }
+
+        .category-card h3 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .category-card .amount {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .category-card .remaining {
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        .category-card .overspent {
+            color: var(--warning-color);
+            font-weight: bold;
+        }
+
+        .category-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary-color);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .dark-mode input, .dark-mode select {
+            background: #495057;
+            border-color: #6c757d;
+            color: var(--dark-color);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 500px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(-20px);
+            transition: var(--transition);
+        }
+
+        .dark-mode .modal-content {
+            background: #2b2d42;
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: var(--primary-color);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--dark-color);
+        }
+
+        .dark-mode .close-btn {
+            color: var(--light-color);
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .chatbot-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 999;
+            transition: var(--transition);
+        }
+
+        .chatbot-btn:hover {
+            background: var(--secondary-color);
+            transform: scale(1.05);
+        }
+
+        .chatbot-container {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 350px;
+            max-height: 500px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            transform: translateY(20px);
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dark-mode .chatbot-container {
+            background: #2b2d42;
+        }
+
+        .chatbot-container.active {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .chatbot-header {
+            padding: 15px;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chatbot-header h3 {
+            font-weight: 500;
+        }
+
+        .chatbot-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            line-height: 1.4;
+        }
+
+        .bot-message {
+            align-self: flex-start;
+            background: #f1f1f1;
+            color: var(--dark-color);
+            border-bottom-left-radius: 5px;
+        }
+
+        .dark-mode .bot-message {
+            background: #495057;
+            color: var(--light-color);
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background: var(--primary-color);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .chatbot-input {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+
+        .dark-mode .chatbot-input {
+            border-top: 1px solid #444;
+        }
+
+        .chatbot-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            margin-right: 10px;
+        }
+
+        .dark-mode .chatbot-input input {
+            border-color: #444;
+        }
+
+        .chatbot-input button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .chatbot-input button:hover {
+            background: var(--secondary-color);
+        }
+
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .suggestion-btn {
+            background: #e9ecef;
+            border: none;
+            border-radius: 15px;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .dark-mode .suggestion-btn {
+            background: #495057;
+            color: white;
+        }
+
+        .suggestion-btn:hover {
+            background: #dee2e6;
+        }
+
+        .dark-mode .suggestion-btn:hover {
+            background: #6c757d;
+        }
+
+        .alert {
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .dark-mode .alert-warning {
+            background: #664d03;
+            color: #ffecb5;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .dark-mode .alert-success {
+            background: #0f5132;
+            color: #d1e7dd;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); }
+            to { transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AI Budget Assistant</h1>
+            <button class="mode-toggle" id="modeToggle">
+                <i class="fas fa-moon"></i> Dark Mode
+            </button>
+        </header>
+
+        <div class="dashboard">
+            <div class="summary-card">
+                <h2>Monthly Summary</h2>
+                <div class="summary-item">
+                    <span>Total Budget</span>
+                    <span id="totalBudget">$0.00</span>
+                </div>
+                <div class="summary-item">
+                    <span>Total Spent</span>
+                    <span id="totalSpent">$0.00</span>
+                </div>
+                <div class="summary-item">
+                    <span>Remaining</span>
+                    <span id="totalRemaining">$0.00</span>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="budgetProgress" style="width: 0%; background-color: var(--success-color);"></div>
+                </div>
+            </div>
+
+            <div class="summary-card">
+                <h2>Quick Actions</h2>
+                <button class="btn btn-primary" id="addCategoryBtn" style="width: 100%; margin-bottom: 15px;">
+                    <i class="fas fa-plus"></i> Add Category
+                </button>
+                <button class="btn btn-outline" id="resetBudgetBtn" style="width: 100%;">
+                    <i class="fas fa-sync-alt"></i> Reset Budget
+                </button>
+                <div id="alertsContainer" style="margin-top: 15px;"></div>
+            </div>
+        </div>
+
+        <h2 style="margin-bottom: 20px;">Budget Categories</h2>
+        <div class="categories" id="categoriesContainer">
+            <!-- Categories will be added here dynamically -->
+        </div>
+    </div>
+
+    <!-- Add Category Modal -->
+    <div class="modal" id="categoryModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Budget Category</h2>
+                <button class="close-btn" id="closeCategoryModal">&times;</button>
+            </div>
+            <form id="categoryForm">
+                <div class="form-group">
+                    <label for="categoryName">Category Name</label>
+                    <input type="text" id="categoryName" required placeholder="e.g., Groceries, Rent">
+                </div>
+                <div class="form-group">
+                    <label for="categoryBudget">Monthly Budget ($)</label>
+                    <input type="number" id="categoryBudget" required min="0" step="0.01" placeholder="500.00">
+                </div>
+                <div class="form-group">
+                    <label for="categoryIcon">Icon</label>
+                    <select id="categoryIcon" required>
+                        <option value="fa-house">Home</option>
+                        <option value="fa-utensils">Food</option>
+                        <option value="fa-car">Transport</option>
+                        <option value="fa-shirt">Clothing</option>
+                        <option value="fa-heart">Health</option>
+                        <option value="fa-film">Entertainment</option>
+                        <option value="fa-graduation-cap">Education</option>
+                        <option value="fa-plane">Travel</option>
+                        <option value="fa-piggy-bank">Savings</option>
+                        <option value="fa-gift">Gifts</option>
+                        <option value="fa-ellipsis">Other</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" id="cancelCategory">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Category</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Expense Modal -->
+    <div class="modal" id="expenseModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Expense</h2>
+                <button class="close-btn" id="closeExpenseModal">&times;</button>
+            </div>
+            <form id="expenseForm">
+                <input type="hidden" id="expenseCategoryId">
+                <div class="form-group">
+                    <label for="expenseAmount">Amount ($)</label>
+                    <input type="number" id="expenseAmount" required min="0" step="0.01" placeholder="50.00">
+                </div>
+                <div class="form-group">
+                    <label for="expenseDescription">Description (Optional)</label>
+                    <input type="text" id="expenseDescription" placeholder="e.g., Weekly groceries">
+                </div>
+                <div class="form-group">
+                    <label for="expenseDate">Date</label>
+                    <input type="date" id="expenseDate" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" id="cancelExpense">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Expense</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Chatbot Button -->
+    <div class="chatbot-btn" id="chatbotBtn">
+        <i class="fas fa-robot"></i>
+    </div>
+
+    <!-- Chatbot Container -->
+    <div class="chatbot-container" id="chatbotContainer">
+        <div class="chatbot-header">
+            <h3>Budget Assistant</h3>
+            <button class="chatbot-close" id="chatbotClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="chatbot-messages" id="chatbotMessages">
+            <div class="message bot-message">
+                Hello! I'm your AI Budget Assistant. How can I help you with your finances today?
+                <div class="suggestions">
+                    <button class="suggestion-btn" data-suggestion="How can I save more money?">How can I save more?</button>
+                    <button class="suggestion-btn" data-suggestion="What's a good budget for groceries?">Groceries budget</button>
+                    <button class="suggestion-btn" data-suggestion="Give me a weekly budget plan">Weekly plan</button>
+                </div>
+            </div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="chatbotInput" placeholder="Ask me about budgeting...">
+            <button id="chatbotSend"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const modeToggle = document.getElementById('modeToggle');
+        const addCategoryBtn = document.getElementById('addCategoryBtn');
+        const resetBudgetBtn = document.getElementById('resetBudgetBtn');
+        const categoriesContainer = document.getElementById('categoriesContainer');
+        const categoryModal = document.getElementById('categoryModal');
+        const closeCategoryModal = document.getElementById('closeCategoryModal');
+        const cancelCategory = document.getElementById('cancelCategory');
+        const categoryForm = document.getElementById('categoryForm');
+        const expenseModal = document.getElementById('expenseModal');
+        const closeExpenseModal = document.getElementById('closeExpenseModal');
+        const cancelExpense = document.getElementById('cancelExpense');
+        const expenseForm = document.getElementById('expenseForm');
+        const chatbotBtn = document.getElementById('chatbotBtn');
+        const chatbotContainer = document.getElementById('chatbotContainer');
+        const chatbotClose = document.getElementById('chatbotClose');
+        const chatbotMessages = document.getElementById('chatbotMessages');
+        const chatbotInput = document.getElementById('chatbotInput');
+        const chatbotSend = document.getElementById('chatbotSend');
+        const totalBudgetEl = document.getElementById('totalBudget');
+        const totalSpentEl = document.getElementById('totalSpent');
+        const totalRemainingEl = document.getElementById('totalRemaining');
+        const budgetProgress = document.getElementById('budgetProgress');
+        const alertsContainer = document.getElementById('alertsContainer');
+
+        // State
+        let budgetData = {
+            categories: [],
+            expenses: []
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadBudgetData();
+            renderCategories();
+            updateSummary();
+            setCurrentDate();
+            setupEventListeners();
+        });
+
+        function setCurrentDate() {
+            const today = new Date();
+            const dateStr = today.toISOString().split('T')[0];
+            document.getElementById('expenseDate').value = dateStr;
+        }
+
+        function setupEventListeners() {
+            // Dark mode toggle
+            modeToggle.addEventListener('click', toggleDarkMode);
+
+            // Category modal
+            addCategoryBtn.addEventListener('click', () => categoryModal.classList.add('active'));
+            closeCategoryModal.addEventListener('click', () => categoryModal.classList.remove('active'));
+            cancelCategory.addEventListener('click', () => categoryModal.classList.remove('active'));
+            categoryForm.addEventListener('submit', handleAddCategory);
+
+            // Expense modal
+            closeExpenseModal.addEventListener('click', () => expenseModal.classList.remove('active'));
+            cancelExpense.addEventListener('click', () => expenseModal.classList.remove('active'));
+            expenseForm.addEventListener('submit', handleAddExpense);
+
+            // Reset budget
+            resetBudgetBtn.addEventListener('click', resetBudget);
+
+            // Chatbot
+            chatbotBtn.addEventListener('click', toggleChatbot);
+            chatbotClose.addEventListener('click', toggleChatbot);
+            chatbotSend.addEventListener('click', sendChatMessage);
+            chatbotInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendChatMessage();
+            });
+
+            // Suggestion buttons
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('suggestion-btn')) {
+                    chatbotInput.value = e.target.getAttribute('data-suggestion');
+                    sendChatMessage();
+                }
+            });
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const icon = modeToggle.querySelector('i');
+            if (document.body.classList.contains('dark-mode')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                modeToggle.textContent = ' Light Mode';
+                modeToggle.insertBefore(icon, modeToggle.firstChild);
+                localStorage.setItem('darkMode', 'enabled');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+                modeToggle.textContent = ' Dark Mode';
+                modeToggle.insertBefore(icon, modeToggle.firstChild);
+                localStorage.setItem('darkMode', 'disabled');
+            }
+        }
+
+        function checkDarkModePreference() {
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                document.body.classList.add('dark-mode');
+                const icon = modeToggle.querySelector('i');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                modeToggle.textContent = ' Light Mode';
+                modeToggle.insertBefore(icon, modeToggle.firstChild);
+            }
+        }
+
+        function loadBudgetData() {
+            const savedData = localStorage.getItem('budgetData');
+            if (savedData) {
+                budgetData = JSON.parse(savedData);
+            } else {
+                // Default categories
+                budgetData.categories = [
+                    { id: 1, name: 'Housing', budget: 1200, icon: 'fa-house', spent: 0 },
+                    { id: 2, name: 'Food', budget: 500, icon: 'fa-utensils', spent: 0 },
+                    { id: 3, name: 'Transportation', budget: 200, icon: 'fa-car', spent: 0 },
+                    { id: 4, name: 'Entertainment', budget: 150, icon: 'fa-film', spent: 0 },
+                    { id: 5, name: 'Savings', budget: 300, icon: 'fa-piggy-bank', spent: 0 }
+                ];
+                budgetData.expenses = [];
+                saveBudgetData();
+            }
+            checkDarkModePreference();
+        }
+
+        function saveBudgetData() {
+            localStorage.setItem('budgetData', JSON.stringify(budgetData));
+        }
+
+        function renderCategories() {
+            categoriesContainer.innerHTML = '';
+            
+            // Calculate spent amounts for each category
+            calculateCategorySpending();
+            
+            budgetData.categories.forEach(category => {
+                const remaining = category.budget - category.spent;
+                const percentage = (category.spent / category.budget) * 100;
+                const progressColor = percentage > 90 ? 'var(--warning-color)' : 'var(--success-color)';
+                
+                const categoryCard = document.createElement('div');
+                categoryCard.className = 'category-card fade-in';
+                categoryCard.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3><i class="fas ${category.icon}"></i> ${category.name}</h3>
+                        <button class="btn btn-outline" style="padding: 5px 10px; font-size: 0.8rem;" data-category-id="${category.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="amount">$${category.spent.toFixed(2)} / $${category.budget.toFixed(2)}</div>
+                    <div class="${remaining >= 0 ? 'remaining' : 'overspent'}">
+                        ${remaining >= 0 ? `$${remaining.toFixed(2)} remaining` : `$${Math.abs(remaining).toFixed(2)} over`}
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: ${Math.min(percentage, 100)}%; background-color: ${progressColor};"></div>
+                    </div>
+                    <div class="category-actions">
+                        <button class="btn btn-primary" data-category-id="${category.id}" style="flex: 1;">
+                            <i class="fas fa-plus"></i> Add Expense
+                        </button>
+                    </div>
+                `;
+                
+                categoriesContainer.appendChild(categoryCard);
+            });
+
+            // Add event listeners to dynamically created buttons
+            document.querySelectorAll('.category-actions .btn-primary').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const categoryId = parseInt(e.currentTarget.getAttribute('data-category-id'));
+                    openExpenseModal(categoryId);
+                });
+            });
+
+            // Add event listeners to delete buttons
+            document.querySelectorAll('.category-card .btn-outline').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const categoryId = parseInt(e.currentTarget.getAttribute('data-category-id'));
+                    deleteCategory(categoryId);
+                });
+            });
+
+            // Check for budget alerts
+            checkBudgetAlerts();
+        }
+
+        function calculateCategorySpending() {
+            // Reset all spent amounts to 0
+            budgetData.categories.forEach(category => {
+                category.spent = 0;
+            });
+
+            // Calculate spent amounts based on expenses
+            budgetData.expenses.forEach(expense => {
+                const category = budgetData.categories.find(cat => cat.id === expense.categoryId);
+                if (category) {
+                    category.spent += expense.amount;
+                }
+            });
+        }
+
+        function updateSummary() {
+            const totalBudget = budgetData.categories.reduce((sum, category) => sum + category.budget, 0);
+            const totalSpent = budgetData.categories.reduce((sum, category) => sum + category.spent, 0);
+            const totalRemaining = totalBudget - totalSpent;
+            const percentage = (totalSpent / totalBudget) * 100;
+
+            totalBudgetEl.textContent = `$${totalBudget.toFixed(2)}`;
+            totalSpentEl.textContent = `$${totalSpent.toFixed(2)}`;
+            totalRemainingEl.textContent = `$${totalRemaining.toFixed(2)}`;
+            budgetProgress.style.width = `${percentage}%`;
+            budgetProgress.style.backgroundColor = percentage > 90 ? 'var(--warning-color)' : 'var(--success-color)';
+        }
+
+        function checkBudgetAlerts() {
+            alertsContainer.innerHTML = '';
+            
+            // Check for categories where spending exceeds 90% of budget
+            budgetData.categories.forEach(category => {
+                const percentage = (category.spent / category.budget) * 100;
+                if (percentage > 90 && category.budget > 0) {
+                    const remaining = category.budget - category.spent;
+                    const alert = document.createElement('div');
+                    alert.className = 'alert alert-warning';
+                    alert.innerHTML = `
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>You've used ${Math.round(percentage)}% of your ${category.name} budget. ${remaining >= 0 ? `$${remaining.toFixed(2)} remaining.` : `You're over by $${Math.abs(remaining).toFixed(2)}.`}</span>
+                    `;
+                    alertsContainer.appendChild(alert);
+                }
+            });
+
+            // Check for categories with no spending (suggestions to save)
+            budgetData.categories.forEach(category => {
+                if (category.spent === 0 && category.budget > 0) {
+                    const alert = document.createElement('div');
+                    alert.className = 'alert alert-success';
+                    alert.innerHTML = `
+                        <i class="fas fa-lightbulb"></i>
+                        <span>You haven't spent any money on ${category.name} yet. Consider saving this money!</span>
+                    `;
+                    alertsContainer.appendChild(alert);
+                }
+            });
+        }
+
+        function handleAddCategory(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('categoryName').value;
+            const budget = parseFloat(document.getElementById('categoryBudget').value);
+            const icon = document.getElementById('categoryIcon').value;
+            
+            if (!name || isNaN(budget)) {
+                alert('Please fill in all fields correctly');
+                return;
+            }
+            
+            const newCategory = {
+                id: Date.now(), // Simple unique ID
+                name,
+                budget,
+                icon,
+                spent: 0
+            };
+            
+            budgetData.categories.push(newCategory);
+            saveBudgetData();
+            renderCategories();
+            updateSummary();
+            
+            // Reset form and close modal
+            categoryForm.reset();
+            categoryModal.classList.remove('active');
+        }
+
+        function deleteCategory(categoryId) {
+            if (confirm('Are you sure you want to delete this category? All related expenses will be deleted too.')) {
+                // Remove category
+                budgetData.categories = budgetData.categories.filter(cat => cat.id !== categoryId);
+                
+                // Remove related expenses
+                budgetData.expenses = budgetData.expenses.filter(exp => exp.categoryId !== categoryId);
+                
+                saveBudgetData();
+                renderCategories();
+                updateSummary();
+            }
+        }
+
+        function openExpenseModal(categoryId) {
+            document.getElementById('expenseCategoryId').value = categoryId;
+            document.getElementById('expenseAmount').value = '';
+            document.getElementById('expenseDescription').value = '';
+            setCurrentDate();
+            expenseModal.classList.add('active');
+        }
+
+        function handleAddExpense(e) {
+            e.preventDefault();
+            
+            const categoryId = parseInt(document.getElementById('expenseCategoryId').value);
+            const amount = parseFloat(document.getElementById('expenseAmount').value);
+            const description = document.getElementById('expenseDescription').value;
+            const date = document.getElementById('expenseDate').value;
+            
+            if (!categoryId || isNaN(amount)) {
+                alert('Please fill in all fields correctly');
+                return;
+            }
+            
+            const newExpense = {
+                id: Date.now(),
+                categoryId,
+                amount,
+                description,
+                date
+            };
+            
+            budgetData.expenses.push(newExpense);
+            saveBudgetData();
+            renderCategories();
+            updateSummary();
+            
+            // Reset form and close modal
+            expenseForm.reset();
+            expenseModal.classList.remove('active');
+        }
+
+        function resetBudget() {
+            if (confirm('Are you sure you want to reset your budget? This will delete all categories and expenses.')) {
+                budgetData.categories = [];
+                budgetData.expenses = [];
+                saveBudgetData();
+                renderCategories();
+                updateSummary();
+            }
+        }
+
+        function toggleChatbot() {
+            chatbotContainer.classList.toggle('active');
+            if (chatbotContainer.classList.contains('active')) {
+                chatbotInput.focus();
+            }
+        }
+
+        function sendChatMessage() {
+            const message = chatbotInput.value.trim();
+            if (!message) return;
+
+            // Add user message to chat
+            addChatMessage(message, 'user');
+            chatbotInput.value = '';
+
+            // Show loading indicator
+            const loadingMessage = document.createElement('div');
+            loadingMessage.className = 'message bot-message';
+            loadingMessage.innerHTML = '<div class="spinner"></div>';
+            chatbotMessages.appendChild(loadingMessage);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
+            // Get AI response
+            getAIResponse(message).then(response => {
+                // Remove loading indicator
+                chatbotMessages.removeChild(loadingMessage);
+                
+                // Add bot response
+                addChatMessage(response, 'bot');
+            }).catch(error => {
+                console.error('Error getting AI response:', error);
+                chatbotMessages.removeChild(loadingMessage);
+                addChatMessage("Sorry, I'm having trouble connecting to the AI service. Please try again later.", 'bot');
+            });
+        }
+
+        function addChatMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            
+            if (sender === 'bot') {
+                // Check if the response contains budgeting data we can enhance
+                const enhancedText = enhanceBudgetResponse(text);
+                messageDiv.innerHTML = enhancedText;
+                
+                // Add quick suggestions if it's a bot message
+                const suggestions = getSuggestionsBasedOnResponse(enhancedText);
+                if (suggestions.length > 0) {
+                    const suggestionsDiv = document.createElement('div');
+                    suggestionsDiv.className = 'suggestions';
+                    
+                    suggestions.forEach(suggestion => {
+                        const btn = document.createElement('button');
+                        btn.className = 'suggestion-btn';
+                        btn.textContent = suggestion.text;
+                        btn.setAttribute('data-suggestion', suggestion.prompt);
+                        suggestionsDiv.appendChild(btn);
+                    });
+                    
+                    messageDiv.appendChild(suggestionsDiv);
+                }
+            } else {
+                messageDiv.textContent = text;
+            }
+            
+            chatbotMessages.appendChild(messageDiv);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }
+
+        function enhanceBudgetResponse(text) {
+            // Check if the response mentions any budget categories
+            const mentionedCategories = budgetData.categories.filter(category => 
+                text.toLowerCase().includes(category.name.toLowerCase())
+            );
+            
+            if (mentionedCategories.length === 0) return text;
+            
+            let enhancedText = text;
+            
+            mentionedCategories.forEach(category => {
+                const remaining = category.budget - category.spent;
+                const status = remaining >= 0 ? 
+                    `You have $${remaining.toFixed(2)} remaining in your ${category.name} budget.` :
+                    `You're $${Math.abs(remaining).toFixed(2)} over your ${category.name} budget.`;
+                
+                enhancedText += `<br><br><i>Note: ${status}</i>`;
+            });
+            
+            return enhancedText;
+        }
+
+        function getSuggestionsBasedOnResponse(response) {
+            const suggestions = [];
+            
+            if (response.toLowerCase().includes('save') || response.toLowerCase().includes('saving')) {
+                suggestions.push(
+                    { text: "Show savings tips", prompt: "Give me detailed tips for saving money" },
+                    { text: "Best savings strategies", prompt: "What are the best strategies for saving money each month?" }
+                );
+            }
+            
+            if (response.toLowerCase().includes('food') || response.toLowerCase().includes('groceries')) {
+                suggestions.push(
+                    { text: "Food budget tips", prompt: "How can I reduce my food expenses?" },
+                    { text: "Meal planning", prompt: "Suggest a budget-friendly meal plan for a week" }
+                );
+            }
+            
+            if (response.toLowerCase().includes('budget') && !response.toLowerCase().includes('category')) {
+                suggestions.push(
+                    { text: "Create budget plan", prompt: "Create a detailed monthly budget plan for me" },
+                    { text: "Track spending", prompt: "How can I better track my spending?" }
+                );
+            }
+            
+            return suggestions;
+        }
+
+        async function getAIResponse(message) {
+            // In a real implementation, you would call the OpenAI API here
+            // This is a mock implementation for demonstration purposes
+            
+            // Simulate API delay
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Get current budget summary for context
+            const totalBudget = budgetData.categories.reduce((sum, category) => sum + category.budget, 0);
+            const totalSpent = budgetData.categories.reduce((sum, category) => sum + category.spent, 0);
+            const totalRemaining = totalBudget - totalSpent;
+            
+            // Create a simple budget summary string
+            let budgetSummary = '';
+            budgetData.categories.forEach(category => {
+                const remaining = category.budget - category.spent;
+                budgetSummary += `${category.name}: $${category.spent.toFixed(2)} spent of $${category.budget.toFixed(2)} (${remaining >= 0 ? 'remaining' : 'over'} $${Math.abs(remaining).toFixed(2)})\n`;
+            });
+            
+            // Mock responses based on common questions
+            const lowerMessage = message.toLowerCase();
+            
+            if (lowerMessage.includes('save') || lowerMessage.includes('saving')) {
+                return `Based on your current spending ($${totalSpent.toFixed(2)} of $${totalBudget.toFixed(2)} budget), here are some savings tips:<br><br>
+                1. Review your largest expenses first - small daily savings add up.<br>
+                2. Consider setting up automatic transfers to savings when you get paid.<br>
+                3. Look for areas where you're over budget - these are prime opportunities to cut back.<br><br>
+                Your current budget status:<br>
+                ${budgetSummary.replace(/\n/g, '<br>')}`;
+            }
+            
+            if (lowerMessage.includes('grocer') || lowerMessage.includes('food')) {
+                const foodCategory = budgetData.categories.find(cat => cat.name.toLowerCase().includes('food'));
+                if (foodCategory) {
+                    const remaining = foodCategory.budget - foodCategory.spent;
+                    return `For groceries/food budgeting:<br><br>
+                    - Meal planning can reduce food waste and impulse purchases<br>
+                    - Buying in bulk for non-perishables often saves money<br>
+                    - Consider store brands which are typically cheaper<br><br>
+                    You've spent $${foodCategory.spent.toFixed(2)} of your $${foodCategory.budget.toFixed(2)} food budget. ${remaining >= 0 ? 
+                        `You have $${remaining.toFixed(2)} remaining this month.` : 
+                        `You're $${Math.abs(remaining).toFixed(2)} over budget.`}`;
+                }
+                return "Food budgeting tips:<br><br>1. Plan meals weekly to reduce waste<br>2. Make a shopping list and stick to it<br>3. Buy seasonal produce for better prices";
+            }
+            
+            if (lowerMessage.includes('plan') || lowerMessage.includes('weekly')) {
+                return `Here's a suggested weekly budget plan based on your monthly totals:<br><br>
+                - Housing: $${(budgetData.categories.find(c => c.name === 'Housing')?.budget || 0 / 4).toFixed(2)}<br>
+                - Food: $${(budgetData.categories.find(c => c.name === 'Food')?.budget || 0 / 4).toFixed(2)}<br>
+                - Transportation: $${(budgetData.categories.find(c => c.name === 'Transportation')?.budget || 0 / 4).toFixed(2)}<br>
+                - Entertainment: $${(budgetData.categories.find(c => c.name === 'Entertainment')?.budget || 0 / 4).toFixed(2)}<br><br>
+                Adjust these amounts based on your actual weekly needs.`;
+            }
+            
+            if (lowerMessage.includes('how much') && lowerMessage.includes('spend')) {
+                const categoryMatch = budgetData.categories.find(cat => 
+                    lowerMessage.includes(cat.name.toLowerCase())
+                );
+                
+                if (categoryMatch) {
+                    const remaining = categoryMatch.budget - categoryMatch.spent;
+                    return `For ${categoryMatch.name}, your monthly budget is $${categoryMatch.budget.toFixed(2)}. You've spent $${categoryMatch.spent.toFixed(2)} so far, leaving $${remaining.toFixed(2)} remaining.`;
+                }
+                
+                return `Your total monthly budget is $${totalBudget.toFixed(2)}. You've spent $${totalSpent.toFixed(2)}, leaving $${totalRemaining.toFixed(2)} remaining.`;
+            }
+            
+            // Default response for other questions
+            return `I can help you with budgeting advice! Based on your current budget:<br><br>
+            - Total budget: $${totalBudget.toFixed(2)}<br>
+            - Total spent: $${totalSpent.toFixed(2)}<br>
+            - Remaining: $${totalRemaining.toFixed(2)}<br><br>
+            ${budgetSummary.replace(/\n/g, '<br>')}<br><br>
+            You can ask me specific questions about your budget categories, saving strategies, or request spending recommendations.`;
+        }
+
+        // In a real implementation, you would have actual API calls like this:
+        /*
+        async function getRealAIResponse(message) {
+            try {
+                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${OPENAI_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: "gpt-4",
+                        messages: [
+                            {
+                                role: "system",
+                                content: "You are a helpful budget assistant. Provide concise, practical advice for personal finance management."
+                            },
+                            {
+                                role: "user",
+                                content: message
+                            }
+                        ],
+                        temperature: 0.7
+                    })
+                });
+                
+                const data = await response.json();
+                return data.choices[0].message.content;
+            } catch (error) {
+                console.error('Error calling OpenAI API:', error);
+                throw error;
+            }
+        }
+        */
+    </script>
+</body>
+</html>
