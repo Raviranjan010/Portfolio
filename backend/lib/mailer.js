@@ -46,6 +46,37 @@ const createTransporter = () => {
     });
 };
 
+const getMailHealth = async () => {
+    const config = getMailConfig();
+    const transporter = createTransporter();
+
+    if (!config.isMailConfigured || !transporter) {
+        return {
+            configured: false,
+            ready: false,
+            status: 'missing_credentials',
+            reason: 'SMTP_USER or SMTP_PASS is missing.',
+        };
+    }
+
+    try {
+        await transporter.verify();
+        return {
+            configured: true,
+            ready: true,
+            status: 'ready',
+            reason: '',
+        };
+    } catch (error) {
+        return {
+            configured: true,
+            ready: false,
+            status: 'connection_failed',
+            reason: error instanceof Error ? error.message : 'Unknown SMTP verification error.',
+        };
+    }
+};
+
 const escapeHtml = (value = '') => value
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -162,6 +193,7 @@ const getContactRecipient = () => getMailConfig().CONTACT_TO_EMAIL;
 
 export {
     getContactRecipient,
+    getMailHealth,
     isMailConfigured,
     sendContactEmails,
 };

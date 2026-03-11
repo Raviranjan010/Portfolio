@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 
 import Project from './models/Project.js';
 import ContactMessage from './models/ContactMessage.js';
-import { getContactRecipient, isMailConfigured, sendContactEmails } from './lib/mailer.js';
+import { getContactRecipient, getMailHealth, sendContactEmails } from './lib/mailer.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -86,11 +86,15 @@ mongoose.connect(MONGO_URI, { serverSelectionTimeoutMS: 5000 })
 
 app.get('/api/health', async (req, res) => {
     const dbState = isDatabaseReady() ? 'connected' : 'disconnected';
+    const mailHealth = await getMailHealth();
 
     res.json({
         ok: dbState === 'connected',
         database: dbState,
-        mail: isMailConfigured() ? 'configured' : 'missing_credentials',
+        mail: mailHealth.status,
+        mailConfigured: mailHealth.configured,
+        mailReady: mailHealth.ready,
+        mailReason: mailHealth.reason,
         contactRecipient: getContactRecipient(),
         allowedOrigins,
         timestamp: new Date().toISOString(),
@@ -180,8 +184,8 @@ app.post('/api/contact', async (req, res) => {
 
         return res.status(202).json({
             message: canPersist
-                ? 'Message saved, but email delivery is not configured yet.'
-                : 'Message could not be stored because the database is unavailable, and email delivery is not configured yet.',
+                ? 'Message saved, but email delivery failed.'
+                : 'Message could not be stored because the database is unavailable, and email delivery failed.',
             warning: delivery.reason || 'Database is unavailable.',
         });
     } catch (err) {

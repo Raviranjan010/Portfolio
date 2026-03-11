@@ -90,13 +90,14 @@ const ContactSection = () => {
       }
 
       setSending(false);
-      setSent(true);
-      setServerMessage(payload.message || "");
+      const warningMessage = payload.warning || payload.message || "";
+      setSent(res.status !== 202);
+      setServerMessage(warningMessage);
       setFormData({ name: "", email: "", subject: "", message: "" });
       setErrors({});
 
       if (res.status === 202) {
-        toast.warning("Message saved, but email delivery still needs SMTP setup.");
+        toast.warning(warningMessage || "Message saved, but email delivery failed.");
       } else {
         toast.success("Message sent successfully.");
       }
