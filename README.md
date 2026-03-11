@@ -47,7 +47,8 @@ Required backend environment variables:
 MONGO_URI=your-mongodb-connection-string
 CLIENT_URL=http://localhost:5173
 SMTP_HOST=smtp.gmail.com
-SMTP_PORT=465
+SMTP_PORT=587
+SMTP_SECURE=false
 SMTP_USER=raviranjan01b@gmail.com
 SMTP_PASS=your-gmail-app-password
 CONTACT_TO_EMAIL=raviranjan01b@gmail.com
@@ -69,4 +70,4 @@ npm run seed
 
 ## Deployment
 
-See [DEPLOYMENT.md](/c:/Project+/Portfolio/Portfolio_3/editorial-canvas-main/DEPLOYMENT.md) for the full MongoDB Atlas + Render + Vercel deployment flow.
+See `DEPLOYMENT.md` for the full MongoDB Atlas + Render + Vercel deployment flow.
