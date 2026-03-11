@@ -17,23 +17,64 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 const app = express();
 const PORT = process.env.PORT || 5000;
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:8080';
+const CLIENT_URLS = process.env.CLIENT_URLS || '';
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/portfolio';
 
-const allowedOrigins = [CLIENT_URL, 'http://localhost:8080', 'http://localhost:5173'];
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const trimValue = (value) => typeof value === 'string' ? value.trim() : '';
 const isDatabaseReady = () => mongoose.connection.readyState === 1;
+const normalizeOrigin = (value) => {
+    if (!value || typeof value !== 'string') {
+        return '';
+    }
+
+    try {
+        const url = new URL(value.trim());
+        return url.origin.toLowerCase();
+    } catch {
+        return value.trim().replace(/\/+$/, '').toLowerCase();
+    }
+};
+
+const allowedOrigins = [
+    CLIENT_URL,
+    ...CLIENT_URLS.split(','),
+    'http://localhost:8080',
+    'http://localhost:5173',
+].map(normalizeOrigin).filter(Boolean);
+
+const isAllowedOrigin = (origin) => {
+    const normalizedOrigin = normalizeOrigin(origin);
+
+    if (!normalizedOrigin) {
+        return true;
+    }
+
+    if (allowedOrigins.includes(normalizedOrigin)) {
+        return true;
+    }
+
+    try {
+        const { hostname, protocol } = new URL(normalizedOrigin);
+        return protocol === 'https:' && hostname.endsWith('.vercel.app');
+    } catch {
+        return false;
+    }
+};
 
 // Middleware
 app.use(cors({
     origin(origin, callback) {
-        if (!origin || allowedOrigins.includes(origin)) {
+        if (isAllowedOrigin(origin)) {
             return callback(null, true);
         }
 
         return callback(new Error('Origin not allowed by CORS'));
     },
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type'],
 }));
+app.options('*', cors());
 app.use(express.json());
 
 // MongoDB Connection
@@ -51,6 +92,7 @@ app.get('/api/health', async (req, res) => {
         database: dbState,
         mail: isMailConfigured() ? 'configured' : 'missing_credentials',
         contactRecipient: getContactRecipient(),
+        allowedOrigins,
         timestamp: new Date().toISOString(),
     });
 });
