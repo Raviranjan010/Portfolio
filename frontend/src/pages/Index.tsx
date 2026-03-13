@@ -39,11 +39,12 @@ const Index = () => {
         viewport={{ once: true, margin: "-100px" }}
         transition={{ duration: 0.8, ease: "easeOut" }}
       >
+        <ExperienceSection />
+      <SectionDivider text="VISUAL ARCHIVE -" direction="left" />
         <ProjectsSection />
       </motion.div>
       <SectionDivider text="CAREER PATH -" direction="right" />
-      <ExperienceSection />
-      <SectionDivider text="VISUAL ARCHIVE -" direction="left" />
+      
       <GallerySection />
       <SectionDivider text="KIND WORDS -" direction="right" />
       <TestimonialsSection />
