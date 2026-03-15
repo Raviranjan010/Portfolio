@@ -7,7 +7,6 @@ const navItems = [
   { label: "Skills", href: "#skills" },
   { label: "Experience", href: "#experience" },
   { label: "Projects", href: "#projects" },
-  
   { label: "Contact", href: "#contact" },
 ];
 
@@ -24,11 +23,10 @@ const Navbar = () => {
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
 
-  // Track active section
+  // Track active section logic (Unchanged)
   useEffect(() => {
     const onScroll = () => {
       setScrolled(window.scrollY > 60);
-
       let current = "";
       for (const item of navItems) {
         const el = document.querySelector(item.href);
@@ -39,13 +37,11 @@ const Navbar = () => {
       }
       setActiveSection(current);
     };
-
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Update indicator position
   const updateIndicator = useCallback((index: number | null) => {
     const targetIndex = index ?? navItems.findIndex((item) => item.href.replace("#", "") === activeSection);
     const el = itemRefs.current[targetIndex];
@@ -70,12 +66,9 @@ const Navbar = () => {
   const handleClick = (href: string) => {
     setMenuOpen(false);
     setTransitioning(true);
-
-    // Brief delay to let the transition overlay appear before scrolling
     setTimeout(() => {
       document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
     }, 250);
-
     setTimeout(() => setTransitioning(false), 700);
   };
 
@@ -85,232 +78,171 @@ const Navbar = () => {
       <AnimatePresence>
         {transitioning && (
           <motion.div
-            className="fixed inset-0 z-[9990] pointer-events-none"
+            className="fixed inset-0 z-[9990] pointer-events-none flex items-center justify-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
           >
             <motion.div
-              className="absolute inset-0"
+              className="absolute inset-0 z-0"
               initial={{ scaleY: 0 }}
               animate={{ scaleY: [0, 1, 1, 0] }}
-              transition={{ duration: 0.7, times: [0, 0.35, 0.65, 1], ease: [0.76, 0, 0.24, 1] }}
-              style={{ background: "var(--bg)", transformOrigin: "top" }}
+              transition={{ duration: 0.8, times: [0, 0.4, 0.6, 1], ease: [0.83, 0, 0.17, 1] }}
+              style={{ background: "var(--bg)", transformOrigin: "bottom" }}
             />
-            {/* Gold accent line */}
-            <motion.div
-              className="absolute left-0 right-0 h-[2px]"
-              style={{ background: "var(--gold)", top: "50%", boxShadow: "0 0 20px var(--gold-glow)" }}
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: [0, 1, 0] }}
-              transition={{ duration: 0.7, times: [0, 0.5, 1], ease: [0.22, 1, 0.36, 1] }}
-            />
+            <motion.div 
+               initial={{ opacity: 0, y: 20 }}
+               animate={{ opacity: [0, 1, 0], y: 0 }}
+               transition={{ duration: 0.8 }}
+               className="z-10 font-display text-4xl font-light italic tracking-widest text-[var(--gold)]"
+            >
+              Loading Experience
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Scroll progress */}
+      {/* Progress Bar with Glow */}
       <motion.div
-        className="fixed top-0 left-0 right-0 h-[2px] z-[102] origin-left"
+        className="fixed top-0 left-0 right-0 h-[3px] z-[102] origin-left"
         style={{
           scaleX,
-          background: "var(--gold)",
-          boxShadow: "0 0 8px var(--gold-glow)",
+          background: "linear-gradient(90deg, transparent, var(--gold), var(--gold-glow))",
+          boxShadow: "0 0 15px var(--gold-glow)",
         }}
       />
 
       <motion.nav
         ref={navRef}
-        initial={{ y: -80 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.6, delay: 1.5, ease: [0.22, 1, 0.36, 1] }}
-        className="fixed top-0 left-0 right-0 z-[100] px-6 md:px-10 flex items-center justify-between transition-all duration-500"
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 1, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        className="fixed top-0 left-0 right-0 z-[100] px-6 md:px-12 flex items-center justify-between transition-all duration-700 ease-in-out"
         style={{
-          height: scrolled ? 56 : 68,
-          background: scrolled ? "var(--nav-scrolled-bg)" : "transparent",
-          backdropFilter: scrolled ? "blur(20px) saturate(1.5)" : "none",
-          WebkitBackdropFilter: scrolled ? "blur(20px) saturate(1.5)" : "none",
-          borderBottom: scrolled ? "1px solid var(--border-raw)" : "1px solid transparent",
+          height: scrolled ? 64 : 90,
+          background: scrolled ? "rgba(var(--bg-rgb), 0.7)" : "transparent",
+          backdropFilter: scrolled ? "blur(12px) saturate(180%)" : "none",
+          borderBottom: scrolled ? "1px solid rgba(var(--gold-rgb), 0.1)" : "1px solid transparent",
         }}
       >
-        {/* Logo */}
+        {/* Animated Logo */}
         <motion.a
           href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            window.scrollTo({ top: 0, behavior: "smooth" });
-          }}
-          className="font-display text-lg font-bold tracking-wider relative"
-          style={{ color: "var(--gold)" }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+          className="group flex items-center gap-2 font-display text-2xl font-black tracking-tighter"
+          whileHover={{ scale: 1.02 }}
         >
-          RR<span style={{ opacity: 0.5 }}>.</span>
+          <span style={{ color: "var(--text)" }}>R</span>
+          <span className="relative" style={{ color: "var(--gold)" }}>
+            R
+            <motion.span 
+              animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
+              transition={{ repeat: Infinity, duration: 2 }}
+              className="absolute -right-3 bottom-1 w-1.5 h-1.5 rounded-full bg-[var(--gold)] shadow-[0_0_8px_var(--gold-glow)]" 
+            />
+          </span>
         </motion.a>
 
-        {/* Desktop nav */}
-        <div className="hidden md:flex items-center gap-0.5 relative">
-          {/* Sliding indicator */}
-          {(hovered !== null || activeSection) && (
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center gap-2 relative">
+          <div className="flex items-center bg-[var(--nav-pill-bg)] rounded-full px-2 py-1 border border-[rgba(255,255,255,0.05)]">
+            {navItems.map((item, i) => {
+              const isActive = activeSection === item.href.replace("#", "");
+              return (
+                <button
+                  key={item.label}
+                  ref={(el) => { itemRefs.current[i] = el; }}
+                  onClick={() => handleClick(item.href)}
+                  onMouseEnter={() => { setHovered(i); updateIndicator(i); }}
+                  onMouseLeave={() => { setHovered(null); updateIndicator(null); }}
+                  className="relative font-mono text-[10px] tracking-[0.2em] uppercase px-5 py-3 transition-all duration-300"
+                  style={{
+                    color: isActive ? "var(--gold)" : "var(--text-muted-raw)",
+                  }}
+                >
+                  <motion.span animate={{ letterSpacing: hovered === i ? "0.3em" : "0.2em" }}>
+                    {item.label}
+                  </motion.span>
+                </button>
+              );
+            })}
+            
+            {/* Sliding Indicator with Liquid Effect */}
             <motion.div
-              className="absolute bottom-0 h-[2px] rounded-full"
-              style={{ background: "var(--gold)" }}
+              className="absolute bottom-2 h-[2px] rounded-full"
+              style={{ background: "var(--gold)", boxShadow: "0 0 10px var(--gold-glow)" }}
               animate={{
-                left: indicatorStyle.left,
-                width: indicatorStyle.width,
+                left: indicatorStyle.left + 20, // offset for padding
+                width: indicatorStyle.width - 40,
+                opacity: (hovered !== null || activeSection) ? 1 : 0
               }}
-              transition={{ type: "spring", stiffness: 500, damping: 35 }}
+              transition={{ type: "spring", stiffness: 350, damping: 30 }}
             />
-          )}
+          </div>
 
-          {navItems.map((item, i) => {
-            const isActive = activeSection === item.href.replace("#", "");
-            return (
-              <button
-                key={item.label}
-                ref={(el) => { itemRefs.current[i] = el; }}
-                onClick={() => handleClick(item.href)}
-                onMouseEnter={() => {
-                  setHovered(i);
-                  updateIndicator(i);
-                }}
-                onMouseLeave={() => {
-                  setHovered(null);
-                  updateIndicator(null);
-                }}
-                className="relative font-body text-[11px] tracking-[0.15em] uppercase px-4 py-4 transition-colors duration-200"
-                style={{
-                  color: isActive
-                    ? "var(--gold)"
-                    : hovered === i
-                    ? "var(--text)"
-                    : "var(--text-muted-raw)",
-                }}
-              >
-                {item.label}
-              </button>
-            );
-          })}
-
-          <div className="w-px h-4 mx-2" style={{ background: "var(--border-raw)" }} />
+          <div className="h-6 w-[1px] bg-white/10 mx-4" />
           <ThemeToggle />
         </div>
 
-        {/* Mobile menu button */}
+        {/* Fancy Mobile Toggle */}
         <button
-          className="md:hidden flex flex-col items-end justify-center gap-[5px] w-8 h-8 z-[110]"
+          className="md:hidden relative w-10 h-10 flex items-center justify-center rounded-full bg-[var(--gold)]/5 border border-[var(--gold)]/10"
           onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Toggle menu"
         >
-          <motion.span
-            animate={{
-              rotate: menuOpen ? 45 : 0,
-              y: menuOpen ? 6.5 : 0,
-              width: menuOpen ? 20 : 20,
-            }}
-            className="block h-[1.5px] rounded-full origin-center"
-            style={{ background: menuOpen ? "var(--gold)" : "var(--text)" }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          />
-          <motion.span
-            animate={{ opacity: menuOpen ? 0 : 1, width: menuOpen ? 0 : 14 }}
-            className="block h-[1.5px] rounded-full"
-            style={{ background: "var(--gold)" }}
-            transition={{ duration: 0.2 }}
-          />
-          <motion.span
-            animate={{
-              rotate: menuOpen ? -45 : 0,
-              y: menuOpen ? -6.5 : 0,
-              width: menuOpen ? 20 : 16,
-            }}
-            className="block h-[1.5px] rounded-full origin-center"
-            style={{ background: "var(--text)" }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          />
+          <div className="flex flex-col gap-1.5 items-end">
+            <motion.span animate={{ width: menuOpen ? 24 : 18, rotate: menuOpen ? 45 : 0, y: menuOpen ? 8 : 0 }} className="h-[1.5px] bg-[var(--gold)] rounded-full origin-center transition-all" />
+            <motion.span animate={{ opacity: menuOpen ? 0 : 1, width: 24 }} className="h-[1.5px] bg-[var(--text)] rounded-full" />
+            <motion.span animate={{ width: menuOpen ? 24 : 12, rotate: menuOpen ? -45 : 0, y: menuOpen ? -8 : 0 }} className="h-[1.5px] bg-[var(--gold)] rounded-full origin-center transition-all" />
+          </div>
         </button>
 
-        {/* Mobile fullscreen menu */}
+        {/* Mobile Fullscreen Menu */}
         <AnimatePresence>
           {menuOpen && (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.4 }}
-              className="fixed inset-0 z-[105] flex flex-col justify-center"
-              style={{ background: "var(--bg)" }}
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="fixed inset-0 z-[105] bg-[var(--bg)] flex flex-col"
             >
-              {/* Background accent */}
-              <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div
-                  className="absolute top-1/3 right-0 w-72 h-72 rounded-full opacity-20"
-                  style={{ background: "radial-gradient(circle, var(--gold-glow), transparent 70%)", filter: "blur(40px)" }}
-                />
+              {/* Decorative background grid */}
+              <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
+                   style={{ backgroundImage: `radial-gradient(var(--gold) 1px, transparent 1px)`, backgroundSize: '40px 40px' }} />
+
+              <div className="mt-32 px-10 flex flex-col gap-8">
+                {navItems.map((item, i) => (
+                  <motion.button
+                    key={item.label}
+                    initial={{ opacity: 0, y: 40 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 + i * 0.1 }}
+                    onClick={() => handleClick(item.href)}
+                    className="group relative flex flex-col items-start"
+                  >
+                    <span className="font-mono text-[10px] text-[var(--gold)] mb-1 opacity-50">0{i + 1}.</span>
+                    <span className="font-display text-5xl font-bold tracking-tighter text-[var(--text)] group-hover:text-[var(--gold)] transition-colors">
+                      {item.label}
+                    </span>
+                    {activeSection === item.href.replace("#", "") && (
+                       <motion.div layoutId="mobile-dot" className="absolute -left-6 top-1/2 w-2 h-2 rounded-full bg-[var(--gold)]" />
+                    )}
+                  </motion.button>
+                ))}
               </div>
 
-              <div className="px-8 py-20">
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.15 }}
-                  className="font-mono text-[10px] tracking-[0.3em] uppercase mb-10"
-                  style={{ color: "var(--text-dim)" }}
-                >
-                  Navigation
-                </motion.p>
-
-                <div className="flex flex-col gap-2">
-                  {navItems.map((item, i) => {
-                    const isActive = activeSection === item.href.replace("#", "");
-                    return (
-                      <motion.button
-                        key={item.label}
-                        initial={{ opacity: 0, x: -30 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: 20 }}
-                        transition={{
-                          delay: 0.08 + i * 0.05,
-                          duration: 0.4,
-                          ease: [0.22, 1, 0.36, 1],
-                        }}
-                        onClick={() => handleClick(item.href)}
-                        className="flex items-center gap-5 py-3 group text-left"
-                      >
-                        <span className="font-mono text-[10px] w-5" style={{ color: "var(--gold)", opacity: 0.4 }}>
-                          0{i + 1}
-                        </span>
-                        <span
-                          className="font-display text-3xl font-bold tracking-wide transition-all duration-300 group-hover:translate-x-2"
-                          style={{ color: isActive ? "var(--gold)" : "var(--text)" }}
-                        >
-                          {item.label}
-                        </span>
-                        {isActive && (
-                          <motion.span
-                            layoutId="mobile-active"
-                            className="w-2 h-2 rounded-full ml-auto"
-                            style={{ background: "var(--gold)" }}
-                          />
-                        )}
-                      </motion.button>
-                    );
-                  })}
+              <motion.div 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }} 
+                transition={{ delay: 0.8 }}
+                className="mt-auto p-10 flex items-center justify-between border-t border-white/5 bg-white/[0.02]"
+              >
+                <ThemeToggle />
+                <div className="text-right">
+                  <p className="font-mono text-[9px] uppercase tracking-widest text-[var(--text-dim)]">Current Status</p>
+                  <p className="text-[11px] text-[var(--gold)] font-medium">Available for Projects</p>
                 </div>
-
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                  className="mt-16 flex items-center justify-between"
-                >
-                  <ThemeToggle />
-                  <span className="font-mono text-[10px] tracking-widest" style={{ color: "var(--text-dim)" }}>
-                    © 2026
-                  </span>
-                </motion.div>
-              </div>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
