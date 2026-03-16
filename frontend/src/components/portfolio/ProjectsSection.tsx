@@ -1,8 +1,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { motion, useScroll, useTransform, AnimatePresence, useSpring } from "framer-motion";
-import { ArrowRight, ExternalLink, Github, Sparkles } from "lucide-react";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  AnimatePresence,
+  useSpring,
+  useMotionValue,
+  useVelocity,
+  useAnimationFrame,
+} from "framer-motion";
+import { ArrowRight, ExternalLink, Github, Sparkles, Eye, Code2, Zap } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
+/* ─────────────────────────── Types ─────────────────────────── */
 type Project = {
   id: number;
   title: string;
@@ -12,6 +22,7 @@ type Project = {
   image: string;
   year: string;
   color: string;
+  accentColor?: string;
   github?: string;
   githubUrl?: string;
   repo?: string;
@@ -21,8 +32,10 @@ type Project = {
   demo?: string;
   demoUrl?: string;
   url?: string;
+  stats?: { label: string; value: string }[];
 };
 
+/* ─────────────────────────── Constants ─────────────────────── */
 const DEFAULT_PROFILE_LINK = "https://github.com/Raviranjan010";
 
 const fallbackProjects: Project[] = [
@@ -30,338 +43,743 @@ const fallbackProjects: Project[] = [
     id: 1,
     title: "Zenith Finance",
     category: "Fintech Platform",
-    description: "Real-time trading dashboard processing $2M+ daily volume. Built with React, WebSocket streams, and D3.js visualizations.",
+    description:
+      "Real-time trading dashboard processing $2M+ daily volume. Built with React, WebSocket streams, and D3.js visualizations for institutional traders.",
     tech: ["React", "TypeScript", "D3.js", "WebSocket", "PostgreSQL"],
     image: "/project-zenith.jpg",
     year: "2024",
     color: "#E8C547",
+    accentColor: "#F5E27A",
     github: DEFAULT_PROFILE_LINK,
     live: DEFAULT_PROFILE_LINK,
+    stats: [
+      { label: "Daily Volume", value: "$2M+" },
+      { label: "Uptime", value: "99.99%" },
+      { label: "Users", value: "12K" },
+    ],
   },
   {
     id: 2,
     title: "Nomad Studio",
     category: "Creative Agency",
-    description: "Award-winning agency site with WebGL transitions, 3D product showcases, and an editorial blog engine.",
+    description:
+      "Award-winning agency site with WebGL transitions, 3D product showcases, and an editorial blog engine. Winner of Awwwards Site of the Day.",
     tech: ["Next.js", "Three.js", "Sanity CMS", "GSAP", "Vercel"],
     image: "/project-nomad.jpg",
     year: "2023",
     color: "#4AAED9",
+    accentColor: "#7DCFED",
     github: DEFAULT_PROFILE_LINK,
     live: DEFAULT_PROFILE_LINK,
+    stats: [
+      { label: "Awwwards", value: "SOTD" },
+      { label: "Load Time", value: "0.8s" },
+      { label: "Score", value: "100/100" },
+    ],
   },
   {
     id: 3,
     title: "EcoTrack",
     category: "Climate Tech",
-    description: "Carbon footprint tracker serving 50K+ users. ML-powered recommendations with real-time emissions data from IoT sensors.",
+    description:
+      "Carbon footprint tracker serving 50K+ users. ML-powered recommendations with real-time emissions data streamed from distributed IoT sensor networks.",
     tech: ["Vue", "Python", "TensorFlow", "MongoDB", "AWS"],
     image: "/project-ecotrack.jpg",
     year: "2023",
     color: "#4ADE80",
+    accentColor: "#86EFAC",
     github: DEFAULT_PROFILE_LINK,
     live: DEFAULT_PROFILE_LINK,
+    stats: [
+      { label: "Users", value: "50K+" },
+      { label: "CO₂ Saved", value: "120T" },
+      { label: "Sensors", value: "8K" },
+    ],
   },
   {
     id: 4,
     title: "Vaultkey",
     category: "Web3 Security",
-    description: "Multi-chain wallet security audit platform. Smart contract analysis with automated vulnerability detection.",
+    description:
+      "Multi-chain wallet security audit platform. Smart contract analysis with automated vulnerability detection across 15 EVM-compatible chains.",
     tech: ["Rust", "Solidity", "React", "GraphQL", "Redis"],
     image: "/project-vaultkey.jpg",
     year: "2022",
     color: "#A78BFA",
+    accentColor: "#C4B5FD",
     github: DEFAULT_PROFILE_LINK,
     live: DEFAULT_PROFILE_LINK,
+    stats: [
+      { label: "Chains", value: "15" },
+      { label: "Audits", value: "3.2K" },
+      { label: "TVL Secured", value: "$90M" },
+    ],
+  },
+  {
+    id: 5,
+    title: "Prism AI",
+    category: "Machine Learning",
+    description:
+      "Visual design critique tool powered by multimodal LLMs. Upload any design and receive structured feedback on hierarchy, contrast, and usability.",
+    tech: ["Python", "FastAPI", "OpenAI", "React", "Supabase"],
+    image: "/project-prism.jpg",
+    year: "2024",
+    color: "#F472B6",
+    accentColor: "#FBCFE8",
+    github: DEFAULT_PROFILE_LINK,
+    live: DEFAULT_PROFILE_LINK,
+    stats: [
+      { label: "Designs Rated", value: "200K" },
+      { label: "Accuracy", value: "94%" },
+      { label: "Avg Rating", value: "4.9★" },
+    ],
   },
 ];
 
+/* ─────────────────────────── Helpers ───────────────────────── */
 const fetchProjects = async (): Promise<Project[]> => {
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+  const apiUrl = (import.meta as any).env?.VITE_API_URL || "http://localhost:5000/api";
   try {
     const res = await fetch(`${apiUrl}/projects`);
     if (res.ok) {
       const data = (await res.json()) as Project[];
       if (Array.isArray(data) && data.length > 0) return data;
     }
-  } catch (error) {
-    console.warn("Failed to fetch projects from API, falling back to local data:", error);
+  } catch {
+    /* noop */
   }
   return [];
 };
 
 const getLinks = (project: Project) => ({
-  github: project.github || project.githubUrl || project.repo || project.repository || DEFAULT_PROFILE_LINK,
-  live: project.live || project.liveUrl || project.demo || project.demoUrl || project.url || DEFAULT_PROFILE_LINK,
+  github:
+    project.github ||
+    project.githubUrl ||
+    project.repo ||
+    project.repository ||
+    DEFAULT_PROFILE_LINK,
+  live:
+    project.live ||
+    project.liveUrl ||
+    project.demo ||
+    project.demoUrl ||
+    project.url ||
+    DEFAULT_PROFILE_LINK,
 });
 
+/* ─────────────────────── Noise SVG Overlay ─────────────────── */
+const NoiseOverlay = () => (
+  <svg className="pointer-events-none fixed inset-0 z-[999] opacity-[0.035] h-full w-full" aria-hidden>
+    <filter id="noise-filter">
+      <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
+      <feColorMatrix type="saturate" values="0" />
+    </filter>
+    <rect width="100%" height="100%" filter="url(#noise-filter)" />
+  </svg>
+);
+
+/* ─────────────────────── Magnetic Button ───────────────────── */
+const MagneticLink = ({
+  href,
+  children,
+  className,
+  "aria-label": ariaLabel,
+}: {
+  href: string;
+  children: React.ReactNode;
+  className?: string;
+  "aria-label"?: string;
+}) => {
+  const ref = useRef<HTMLAnchorElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const springX = useSpring(x, { stiffness: 250, damping: 20 });
+  const springY = useSpring(y, { stiffness: 250, damping: 20 });
+
+  const handleMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!ref.current) return;
+    const r = ref.current.getBoundingClientRect();
+    x.set((e.clientX - r.left - r.width / 2) * 0.35);
+    y.set((e.clientY - r.top - r.height / 2) * 0.35);
+  };
+  const handleLeave = () => { x.set(0); y.set(0); };
+
+  return (
+    <motion.a
+      ref={ref}
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      aria-label={ariaLabel}
+      className={className}
+      style={{ x: springX, y: springY }}
+      onMouseMove={handleMove}
+      onMouseLeave={handleLeave}
+    >
+      {children}
+    </motion.a>
+  );
+};
+
+/* ─────────────────────── Velocity Ticker ───────────────────── */
+const wrap = (min: number, max: number, v: number) => {
+  const range = max - min;
+  return ((((v - min) % range) + range) % range) + min;
+};
+
+const ParallaxText = ({ children, baseVelocity = -4 }: { children: string; baseVelocity?: number }) => {
+  const baseX = useMotionValue(0);
+  const { scrollY } = useScroll();
+  const scrollVelocity = useVelocity(scrollY);
+  const smoothVelocity = useSpring(scrollVelocity, { damping: 50, stiffness: 400 });
+  const velocityFactor = useTransform(smoothVelocity, [0, 1000], [0, 5], { clamp: false });
+  const x = useTransform(baseX, (v) => `${wrap(-20, -45, v)}%`);
+  const directionFactor = useRef<number>(1);
+
+  useAnimationFrame((_, delta) => {
+    let moveBy = directionFactor.current * baseVelocity * (delta / 1000);
+    if (velocityFactor.get() < 0) directionFactor.current = -1;
+    else if (velocityFactor.get() > 0) directionFactor.current = 1;
+    moveBy += directionFactor.current * moveBy * velocityFactor.get();
+    baseX.set(baseX.get() + moveBy);
+  });
+
+  const items = Array(4).fill(children);
+
+  return (
+    <div className="overflow-hidden whitespace-nowrap flex">
+      <motion.div style={{ x }} className="flex whitespace-nowrap">
+        {items.map((item, i) => (
+          <span
+            key={i}
+            className="block font-display font-black text-[clamp(5rem,12vw,10rem)] uppercase tracking-tighter leading-none text-transparent mr-12"
+            style={{ WebkitTextStroke: "1px rgba(255,255,255,0.08)" }}
+          >
+            {item} <span style={{ color: "rgba(255,255,255,0.04)" }}>✦</span>{" "}
+          </span>
+        ))}
+      </motion.div>
+    </div>
+  );
+};
+
+/* ─────────────────────── 3D Tilt Card ──────────────────────── */
 const ProjectCard = ({ project, index }: { project: Project; index: number }) => {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isHovered, setIsHovered] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  const springTilt = {
+    x: useSpring(0, { stiffness: 150, damping: 20 }),
+    y: useSpring(0, { stiffness: 150, damping: 20 }),
+  };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    setMousePosition({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    });
+    const r = cardRef.current.getBoundingClientRect();
+    const cx = (e.clientX - r.left) / r.width - 0.5;
+    const cy = (e.clientY - r.top) / r.height - 0.5;
+    springTilt.x.set(cy * 18);
+    springTilt.y.set(-cx * 18);
+    setMousePos({ x: e.clientX - r.left, y: e.clientY - r.top });
+    setTilt({ x: cx, y: cy });
   };
+
+  const handleMouseLeave = () => {
+    springTilt.x.set(0);
+    springTilt.y.set(0);
+    setIsHovered(false);
+    setIsFlipped(false);
+  };
+
+  const glowOpacity = isHovered ? 1 : 0;
 
   return (
     <motion.div
       ref={cardRef}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className="group relative flex h-[500px] w-[340px] md:h-[600px] md:w-[450px] lg:w-[500px] shrink-0 flex-col overflow-hidden rounded-[2.5rem] bg-[#0A0A0A] border border-white/5 shadow-2xl transition-all duration-500 hover:border-white/10"
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.7, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
-      style={{
-        transformStyle: "preserve-3d",
-      }}
-      whileHover={{ y: -10, scale: 1.02 }}
+      onMouseLeave={handleMouseLeave}
+      onClick={() => setIsFlipped(!isFlipped)}
+      className="relative flex shrink-0 cursor-pointer"
+      style={{ perspective: "1200px", width: "clamp(320px,30vw,500px)", height: "clamp(500px,50vh,640px)" }}
+      initial={{ opacity: 0, y: 80, rotateX: -15 }}
+      whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.9, delay: index * 0.12, ease: [0.16, 1, 0.3, 1] }}
     >
-      {/* Radial Glow on Hover */}
-      <div
-        className="pointer-events-none absolute -inset-px rounded-[2.5rem] opacity-0 transition-opacity duration-300 group-hover:opacity-100 z-20"
-        style={{
-          background: `radial-gradient(800px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(255,255,255,0.06), transparent 40%)`,
-        }}
+      {/* Ambient glow behind card */}
+      <motion.div
+        className="absolute inset-0 rounded-[2.5rem] blur-2xl -z-10 scale-95"
+        style={{ background: project.color }}
+        animate={{ opacity: isHovered ? 0.18 : 0, scale: isHovered ? 1.05 : 0.95 }}
+        transition={{ duration: 0.5 }}
       />
 
-      {/* Image Section */}
-      <div className="relative h-[45%] md:h-[50%] w-full overflow-hidden">
-        <div className="absolute inset-0 bg-black/20 z-10" />
-        <motion.img
-          src={project.image}
-          alt={project.title}
-          className="h-full w-full object-cover filter brightness-[0.85] transition-all duration-700 ease-[0.22,1,0.36,1] group-hover:scale-110 group-hover:brightness-100"
-          onError={(e) => {
-            (e.target as HTMLImageElement).style.display = 'none';
-          }}
-        />
-        {/* Placeholder gradient block if image fails to load */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#111] to-[#0A0A0A] -z-10" />
+      <motion.div
+        className="relative w-full h-full"
+        style={{
+          transformStyle: "preserve-3d",
+          rotateX: springTilt.x,
+          rotateY: springTilt.y,
+          rotateZ: 0,
+        }}
+      >
+        {/* ── FRONT FACE ── */}
+        <div
+          className="absolute inset-0 flex flex-col overflow-hidden rounded-[2.5rem] bg-[#0A0A0A] border border-white/[0.07] shadow-[0_0_80px_rgba(0,0,0,0.8)]"
+          style={{ backfaceVisibility: "hidden" }}
+        >
+          {/* Radial cursor glow */}
+          <motion.div
+            className="pointer-events-none absolute -inset-px rounded-[2.5rem] z-30"
+            animate={{ opacity: glowOpacity }}
+            transition={{ duration: 0.3 }}
+            style={{
+              background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, ${project.color}18, transparent 50%)`,
+            }}
+          />
 
-        {/* Top Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent z-10" />
+          {/* Corner chrome accents */}
+          <svg className="absolute top-0 left-0 w-16 h-16 z-20 opacity-30" viewBox="0 0 64 64">
+            <path d="M4 32 L4 4 L32 4" stroke={project.color} strokeWidth="1.5" fill="none" strokeLinecap="round" />
+          </svg>
+          <svg className="absolute bottom-0 right-0 w-16 h-16 z-20 opacity-30" viewBox="0 0 64 64">
+            <path d="M60 32 L60 60 L32 60" stroke={project.color} strokeWidth="1.5" fill="none" strokeLinecap="round" />
+          </svg>
 
-        {/* Category Tag */}
-        <div className="absolute top-6 left-6 z-20 flex gap-2">
-          <span
-            className="px-4 py-1.5 text-[10px] uppercase tracking-wider font-mono rounded-full font-semibold backdrop-blur-md bg-black/40 border"
-            style={{ color: project.color, borderColor: `${project.color}30` }}
-          >
-            {project.category}
-          </span>
-        </div>
+          {/* Image */}
+          <div className="relative h-[44%] w-full overflow-hidden rounded-t-[2.5rem]">
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/20 to-transparent z-10" />
+            <motion.div
+              className="absolute inset-0"
+              style={{ backgroundImage: `linear-gradient(135deg, ${project.color}22, #0A0A0A88)` }}
+            />
+            <motion.img
+              src={project.image}
+              alt={project.title}
+              className="h-full w-full object-cover"
+              animate={{ scale: isHovered ? 1.08 : 1 }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+              onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+            />
 
-        {/* Action Links */}
-        <div className="absolute top-6 right-6 z-20 flex gap-2 opacity-0 -translate-y-4 transition-all duration-500 group-hover:opacity-100 group-hover:translate-y-0">
-          <a
-            href={getLinks(project).github}
-            target="_blank"
-            rel="noreferrer"
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-white/70 hover:bg-white/10 hover:text-white transition-all transform hover:scale-110"
-            aria-label="GitHub Repository"
-          >
-            <Github size={18} />
-          </a>
-          <a
-            href={getLinks(project).live}
-            target="_blank"
-            rel="noreferrer"
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-white/70 hover:bg-white/10 hover:text-white transition-all transform hover:scale-110"
-            aria-label="Live Demo"
-          >
-            <ExternalLink size={18} />
-          </a>
-        </div>
-      </div>
+            {/* Category tag */}
+            <div className="absolute top-5 left-5 z-20">
+              <span
+                className="px-3.5 py-1.5 text-[9px] uppercase tracking-[0.2em] font-mono rounded-full border backdrop-blur-md bg-black/40 font-bold"
+                style={{ color: project.color, borderColor: `${project.color}40` }}
+              >
+                {project.category}
+              </span>
+            </div>
 
-      {/* Content Section */}
-      <div className="relative flex flex-col flex-grow p-6 md:p-8 bg-gradient-to-t from-[#050505] to-[#0A0A0A] z-20">
-        <div className="mb-3 flex items-center justify-between">
-          <span className="text-xs font-mono text-white/40">{project.year}</span>
-        </div>
-
-        <h3 className="mb-4 text-2xl md:text-3xl font-display font-bold text-white transition-colors duration-300">
-          <span className="bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent group-hover:from-[var(--gold)] group-hover:to-yellow-200">
-            {project.title}
-          </span>
-        </h3>
-
-        <p className="text-sm md:text-base text-white/60 leading-relaxed font-body mb-8 line-clamp-3 md:line-clamp-4">
-          {project.description}
-        </p>
-
-        <div className="mt-auto flex flex-wrap gap-2">
-          {project.tech.map((t, i) => (
-            <span
-              key={t}
-              className="px-3 py-1.5 text-[10px] font-mono text-white/50 bg-white/5 rounded-md border border-white/5 transition-all duration-300 group-hover:border-white/10 group-hover:text-white/80 group-hover:bg-white/10"
-              style={{ transitionDelay: isHovered ? `${i * 50}ms` : '0ms' }}
+            {/* Action buttons */}
+            <motion.div
+              className="absolute top-5 right-5 z-20 flex gap-2"
+              animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : -8 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
             >
-              {t}
+              {[
+                { icon: <Github size={15} />, href: getLinks(project).github, label: "GitHub" },
+                { icon: <ExternalLink size={15} />, href: getLinks(project).live, label: "Live" },
+              ].map(({ icon, href, label }) => (
+                <MagneticLink
+                  key={label}
+                  href={href}
+                  aria-label={label}
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white/60 hover:text-white hover:border-white/30 transition-colors"
+                >
+                  {icon}
+                </MagneticLink>
+              ))}
+            </motion.div>
+
+            {/* Year badge */}
+            <div className="absolute bottom-5 right-5 z-20">
+              <span className="font-mono text-[10px] text-white/30">{project.year}</span>
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="flex flex-col flex-grow px-7 py-6 relative">
+            {/* Index number */}
+            <span
+              className="absolute -top-6 right-7 font-display font-black text-[7rem] leading-none pointer-events-none select-none"
+              style={{ color: `${project.color}08`, WebkitTextStroke: `1px ${project.color}12` }}
+            >
+              {String(index + 1).padStart(2, "0")}
             </span>
-          ))}
+
+            <h3 className="mb-3 font-display font-black text-[clamp(1.6rem,3vw,2.2rem)] leading-tight">
+              <span
+                className="bg-clip-text text-transparent transition-all duration-500"
+                style={{
+                  backgroundImage: isHovered
+                    ? `linear-gradient(135deg, #fff 0%, ${project.accentColor ?? project.color} 100%)`
+                    : "linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.5))",
+                }}
+              >
+                {project.title}
+              </span>
+            </h3>
+
+            <p className="text-[13px] text-white/50 leading-relaxed mb-5 line-clamp-3 font-light">
+              {project.description}
+            </p>
+
+            {/* Stats row */}
+            {project.stats && (
+              <motion.div
+                className="flex gap-4 mb-5"
+                animate={{ opacity: isHovered ? 1 : 0.4, y: isHovered ? 0 : 4 }}
+                transition={{ duration: 0.4 }}
+              >
+                {project.stats.map((s) => (
+                  <div key={s.label} className="flex flex-col">
+                    <span className="font-mono font-bold text-[13px]" style={{ color: project.color }}>
+                      {s.value}
+                    </span>
+                    <span className="font-mono text-[9px] text-white/30 uppercase tracking-wider">{s.label}</span>
+                  </div>
+                ))}
+              </motion.div>
+            )}
+
+            {/* Tech stack */}
+            <div className="mt-auto flex flex-wrap gap-1.5">
+              {project.tech.map((t, i) => (
+                <motion.span
+                  key={t}
+                  className="px-2.5 py-1 text-[9px] font-mono rounded-md border border-white/[0.06] bg-white/[0.03] text-white/40 transition-all"
+                  animate={{
+                    borderColor: isHovered ? `${project.color}40` : "rgba(255,255,255,0.06)",
+                    color: isHovered ? project.color : "rgba(255,255,255,0.4)",
+                    backgroundColor: isHovered ? `${project.color}10` : "rgba(255,255,255,0.03)",
+                  }}
+                  transition={{ duration: 0.3, delay: isHovered ? i * 0.04 : 0 }}
+                >
+                  {t}
+                </motion.span>
+              ))}
+            </div>
+          </div>
+
+          {/* Bottom progress bar */}
+          <motion.div
+            className="absolute bottom-0 left-0 h-[2px] rounded-full"
+            style={{ background: `linear-gradient(90deg, transparent, ${project.color}, transparent)` }}
+            animate={{ width: isHovered ? "100%" : "0%", opacity: isHovered ? 1 : 0 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          />
         </div>
-      </div>
+      </motion.div>
     </motion.div>
   );
 };
 
+/* ─────────────────────── Counter Animation ─────────────────── */
+const AnimatedCounter = ({ target, suffix = "" }: { target: number; suffix?: string }) => {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) setInView(true); },
+      { threshold: 0.5 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!inView) return;
+    const duration = 1800;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const p = Math.min((now - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - p, 4);
+      setCount(Math.floor(ease * target));
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }, [inView, target]);
+
+  return <span ref={ref}>{count}{suffix}</span>;
+};
+
+/* ─────────────────────── Main Section ──────────────────────── */
 const ProjectsSection = () => {
   const containerRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [trackWidth, setTrackWidth] = useState(0);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   const { data: apiProjects = [], isFetching } = useQuery<Project[]>({
     queryKey: ["projects"],
     queryFn: fetchProjects,
     retry: 1,
   });
-
   const projects = apiProjects.length > 0 ? apiProjects : fallbackProjects;
 
-  // Calculate draggable width limit
   useEffect(() => {
-    if (trackRef.current) {
-      const updateWidth = () => {
-        if (trackRef.current) {
-          // scrollWidth is total width of track. We subtract window width to know how far negative we can drag.
-          // Subtracting extra padding (e.g. -200) to allow scrolling all the way
-          const maxDrag = trackRef.current.scrollWidth - window.innerWidth + 100;
-          setTrackWidth(maxDrag > 0 ? maxDrag : 0);
-        }
-      };
-
-      updateWidth();
-      window.addEventListener('resize', updateWidth);
-      return () => window.removeEventListener('resize', updateWidth);
-    }
+    const update = () => {
+      if (trackRef.current) {
+        const maxDrag = trackRef.current.scrollWidth - window.innerWidth + 120;
+        setTrackWidth(maxDrag > 0 ? maxDrag : 0);
+      }
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
   }, [projects]);
 
-  // Use section scroll to drive the horizontal track's base translation
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start end", "end start"],
   });
 
-  // Smooth the scroll position
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001
-  });
+  const smooth = useSpring(scrollYProgress, { stiffness: 80, damping: 25 });
 
-  // Parallax elements
-  const bgY = useTransform(smoothProgress, [0, 1], ["-20%", "20%"]);
-  const titleY = useTransform(smoothProgress, [0, 0.5], [100, 0]);
-  const titleOpacity = useTransform(smoothProgress, [0.1, 0.4], [0, 1]);
+  // Scroll-driven transforms
+  const bgY = useTransform(smooth, [0, 1], ["-15%", "15%"]);
+  const titleY = useTransform(smooth, [0, 0.5], [120, 0]);
+  const titleOpacity = useTransform(smooth, [0.05, 0.35], [0, 1]);
+  const tickerY = useTransform(smooth, [0.2, 0.8], [40, -40]);
+  const scrollX = useTransform(smooth, [0.1, 0.9], ["8%", "-30%"]);
 
-  // Base scroll translation: as we scroll down the section, the track shifts left automatically.
-  const scrollTranslateX = useTransform(smoothProgress, [0, 1], ["5%", "-25%"]);
+  // Scanline overlay pulse
+  const [scanlineOffset, setScanlineOffset] = useState(0);
+  useEffect(() => {
+    let raf: number;
+    const tick = () => {
+      setScanlineOffset((p) => (p + 0.3) % 100);
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
 
   return (
-    <section
-      ref={containerRef}
-      id="projects"
-      className="relative min-h-[150vh] bg-[var(--bg)] overflow-hidden py-32 md:py-48"
-    >
-      {/* Abstract Parallax Background Elements */}
-      <motion.div
-        style={{ y: bgY }}
-        className="absolute top-[10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-r from-[var(--gold)]/10 to-transparent blur-[120px] pointer-events-none"
-      />
-      <motion.div
-        style={{ y: useTransform(smoothProgress, [0, 1], ["20%", "-20%"]) }}
-        className="absolute bottom-[20%] right-[-5%] w-[40vw] h-[40vw] rounded-full bg-gradient-to-l from-white/5 to-transparent blur-[100px] pointer-events-none"
-      />
-
-      <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-
-      {/* Header Area */}
-      <motion.div
-        style={{ opacity: titleOpacity, y: titleY }}
-        className="relative z-10 px-6 md:px-16 max-w-7xl mx-auto mb-20 md:mb-32 flex flex-col md:flex-row md:items-end justify-between gap-10"
+    <>
+      <NoiseOverlay />
+      <section
+        ref={containerRef}
+        id="projects"
+        className="relative min-h-[200vh] overflow-hidden"
+        style={{ background: "linear-gradient(180deg, #050505 0%, #080808 50%, #050505 100%)" }}
       >
-        <div className="max-w-3xl">
-          <div className="flex items-center gap-3 mb-6">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--gold)]/10 text-[var(--gold)]">
-              <Sparkles size={14} />
-            </span>
-            <p className="font-mono text-xs md:text-sm tracking-[0.2em] uppercase text-[var(--gold)]">
-              Featured Works
-            </p>
-          </div>
-          <h2 className="font-display font-black text-6xl md:text-8xl lg:text-9xl leading-[0.9] text-white tracking-tighter">
-            SELECTED <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--gold)] to-yellow-200">
-              PROJECTS
-            </span>
-          </h2>
-        </div>
+        {/* ── Subtle scanlines ── */}
+        <div
+          className="pointer-events-none absolute inset-0 z-[1] opacity-[0.015]"
+          style={{
+            backgroundImage: "repeating-linear-gradient(0deg, rgba(255,255,255,0.5) 0px, rgba(255,255,255,0.5) 1px, transparent 1px, transparent 3px)",
+          }}
+        />
 
-        <div className="max-w-md md:pb-4">
-          <p className="font-body text-base md:text-lg text-white/50 leading-relaxed">
-            A curated collection of scalable architectures, interactive experiences, and beautiful interfaces. Crafted with modern web technologies.
-            {isFetching && <span className="animate-pulse text-[var(--gold)] ml-2">Loading...</span>}
-          </p>
-          <div className="mt-8 flex items-center gap-4">
-            <div className="h-[1px] w-12 bg-white/20">
-              <div className="h-full bg-[var(--gold)] w-full origin-left animate-pulse" />
-            </div>
-            <span className="font-mono text-[10px] tracking-widest text-white/50 uppercase">
-              Scroll + Drag to explore
-            </span>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Horizontally Scrolling Track */}
-      {/* Wrapper to hold the scroll driven translation */}
-      <motion.div
-        style={{ x: scrollTranslateX }}
-        className="relative z-20 flex px-6 md:px-16 lg:pl-32"
-      >
-        {/* Inner container to hold the draggable track */}
+        {/* ── Gradient orbs ── */}
         <motion.div
-          ref={trackRef}
-          drag="x"
-          dragConstraints={{ right: 0, left: -trackWidth }}
-          dragElastic={0.1}
-          dragTransition={{ bounceStiffness: 600, bounceDamping: 20 }}
-          className="relative flex gap-6 md:gap-10 lg:gap-16 cursor-grab active:cursor-grabbing pb-12"
+          style={{ y: bgY }}
+          className="absolute top-[5%] left-[-15%] w-[70vw] h-[70vw] rounded-full pointer-events-none"
+          aria-hidden
+          animate={{ scale: [1, 1.08, 1] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         >
-          <AnimatePresence>
-            {projects.map((project, index) => (
-              <ProjectCard key={project.id} project={project} index={index} />
-            ))}
-          </AnimatePresence>
+          <div className="w-full h-full rounded-full bg-gradient-radial from-amber-400/8 via-amber-500/4 to-transparent blur-[160px]" />
+        </motion.div>
 
-          {/* End spacing/CTA item */}
-          <div className="flex shrink-0 w-[200px] md:w-[300px] items-center justify-center">
-            <a
-              href={DEFAULT_PROFILE_LINK}
-              target="_blank"
-              rel="noreferrer"
-              className="group flex flex-col items-center gap-6 justify-center h-48 w-48 rounded-full border border-white/10 text-white/50 hover:border-[var(--gold)] hover:bg-[var(--gold)]/5 hover:text-[var(--gold)] transition-all duration-500"
-            >
-              <div className="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-white/5 group-hover:bg-[var(--gold)]/20 transition-colors">
-                <ArrowRight size={24} className="relative z-10 transition-transform duration-500 group-hover:translate-x-[150%]" />
-                <ArrowRight size={24} className="absolute inset-0 m-auto -translate-x-[150%] transition-transform duration-500 group-hover:translate-x-0" />
+        <motion.div
+          style={{ y: useTransform(smooth, [0, 1], ["15%", "-15%"]) }}
+          className="absolute bottom-[10%] right-[-10%] w-[50vw] h-[50vw] rounded-full pointer-events-none"
+          aria-hidden
+        >
+          <div className="w-full h-full rounded-full bg-gradient-radial from-violet-500/6 via-purple-600/3 to-transparent blur-[140px]" />
+        </motion.div>
+
+        {/* ── Top separator ── */}
+        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+
+        {/* ── Velocity ticker (background text) ── */}
+        <motion.div
+          style={{ y: tickerY }}
+          className="absolute top-32 left-0 w-full pointer-events-none z-0 select-none overflow-hidden"
+        >
+          <ParallaxText baseVelocity={-3}>Selected Works</ParallaxText>
+        </motion.div>
+
+        {/* ── Stats bar ── */}
+        <div className="relative z-10 pt-28 pb-0 px-8 md:px-16 max-w-7xl mx-auto">
+          <motion.div
+            className="flex gap-8 md:gap-16 mb-16"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {[
+              { n: projects.length, s: "", label: "Projects" },
+              { n: 4, s: "+", label: "Years Exp." },
+              { n: 98, s: "%", label: "Client Satisfaction" },
+            ].map(({ n, s, label }) => (
+              <div key={label} className="flex flex-col">
+                <span className="font-display font-black text-4xl md:text-5xl text-white/90">
+                  <AnimatedCounter target={n} suffix={s} />
+                </span>
+                <span className="font-mono text-[10px] uppercase tracking-widest text-white/30 mt-1">{label}</span>
               </div>
-              <span className="font-mono text-xs uppercase tracking-widest">View All</span>
-            </a>
+            ))}
+          </motion.div>
+        </div>
+
+        {/* ── Header ── */}
+        <motion.div
+          style={{ opacity: titleOpacity, y: titleY }}
+          className="relative z-10 px-8 md:px-16 max-w-7xl mx-auto mb-20 md:mb-32 flex flex-col md:flex-row md:items-end justify-between gap-10"
+        >
+          <div className="max-w-3xl">
+            <motion.div
+              className="flex items-center gap-3 mb-6"
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+            >
+              <motion.span
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-400/10 text-amber-400"
+                animate={{ rotate: [0, 360] }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              >
+                <Sparkles size={13} />
+              </motion.span>
+              <p className="font-mono text-xs tracking-[0.25em] uppercase text-amber-400/80">Featured Works</p>
+              <div className="h-px w-16 bg-gradient-to-r from-amber-400/60 to-transparent" />
+            </motion.div>
+
+            <h2 className="font-display font-black leading-[0.88] tracking-tighter">
+              {["SELECTED", "PROJECTS"].map((word, wi) => (
+                <motion.span
+                  key={word}
+                  className="block overflow-hidden"
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.2 + wi * 0.1 }}
+                >
+                  <motion.span
+                    className={`block text-[clamp(3.5rem,9vw,8rem)] ${wi === 1 ? "text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400" : "text-white"}`}
+                    initial={{ y: "110%" }}
+                    whileInView={{ y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.9, delay: 0.25 + wi * 0.12, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    {word}
+                  </motion.span>
+                </motion.span>
+              ))}
+            </h2>
+          </div>
+
+          <div className="max-w-xs md:pb-4 space-y-6">
+            <p className="font-light text-[15px] text-white/45 leading-relaxed">
+              Scalable architectures, immersive interfaces, and beautiful products — crafted with intention.
+              {isFetching && (
+                <motion.span
+                  className="ml-2 text-amber-400"
+                  animate={{ opacity: [1, 0.3, 1] }}
+                  transition={{ duration: 1.2, repeat: Infinity }}
+                >
+                  ●
+                </motion.span>
+              )}
+            </p>
+
+            <div className="flex items-center gap-3">
+              <div className="relative h-px w-12 overflow-hidden bg-white/10">
+                <motion.div
+                  className="absolute inset-0 bg-amber-400"
+                  animate={{ x: ["-100%", "200%"] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                />
+              </div>
+              <span className="font-mono text-[10px] tracking-[0.2em] text-white/35 uppercase">Drag to explore</span>
+            </div>
+
+            {/* Mini project dots nav */}
+            <div className="flex gap-2">
+              {projects.map((p, i) => (
+                <motion.button
+                  key={p.id}
+                  className="h-1.5 rounded-full transition-all duration-500"
+                  style={{ background: activeIndex === i ? p.color : "rgba(255,255,255,0.15)" }}
+                  animate={{ width: activeIndex === i ? 24 : 6 }}
+                  onClick={() => setActiveIndex(activeIndex === i ? null : i)}
+                />
+              ))}
+            </div>
           </div>
         </motion.div>
-      </motion.div>
-    </section>
+
+        {/* ── Card Track ── */}
+        <motion.div
+          style={{ x: scrollX }}
+          className="relative z-20 pl-8 md:pl-16 lg:pl-32"
+        >
+          <motion.div
+            ref={trackRef}
+            drag="x"
+            dragConstraints={{ right: 0, left: -trackWidth }}
+            dragElastic={0.08}
+            dragTransition={{ bounceStiffness: 500, bounceDamping: 30 }}
+            className="flex gap-7 md:gap-10 cursor-grab active:cursor-grabbing pb-16"
+          >
+            <AnimatePresence>
+              {projects.map((project, index) => (
+                <ProjectCard key={project.id} project={project} index={index} />
+              ))}
+            </AnimatePresence>
+
+            {/* End CTA */}
+            <div className="flex shrink-0 w-[220px] md:w-[280px] items-center justify-center">
+              <MagneticLink
+                href={DEFAULT_PROFILE_LINK}
+                className="group relative flex flex-col items-center gap-5 justify-center h-52 w-52 rounded-full border border-white/8 text-white/35 transition-all duration-500 hover:border-amber-400/50 hover:bg-amber-400/5 hover:text-amber-400"
+              >
+                <motion.div
+                  className="absolute inset-0 rounded-full"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+                  style={{
+                    background: "conic-gradient(from 0deg, transparent 0%, rgba(232,197,71,0.12) 25%, transparent 50%)",
+                  }}
+                />
+                <div className="relative h-14 w-14 rounded-full bg-white/5 group-hover:bg-amber-400/20 transition-colors flex items-center justify-center overflow-hidden">
+                  <motion.div
+                    animate={{ x: [0, 48, -48, 0] }}
+                    transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <ArrowRight size={20} className="relative z-10" />
+                  </motion.div>
+                </div>
+                <span className="font-mono text-[10px] uppercase tracking-[0.2em] relative z-10">View All</span>
+              </MagneticLink>
+            </div>
+          </motion.div>
+        </motion.div>
+
+        {/* ── Bottom decorative ticker ── */}
+        <div className="relative z-10 mt-8 overflow-hidden opacity-20">
+          <ParallaxText baseVelocity={2}>
+            React · TypeScript · Next.js · Three.js · Rust · Solidity · Python · TensorFlow ·
+          </ParallaxText>
+        </div>
+
+        {/* ── Bottom separator ── */}
+        <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/8 to-transparent" />
+      </section>
+    </>
   );
 };
 
