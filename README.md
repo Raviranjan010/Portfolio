@@ -45,7 +45,7 @@ Required backend environment variables:
 
 ```env
 MONGO_URI=your-mongodb-connection-string
-CLIENT_URL=http://localhost:5173
+CLIENT_URL=http://localhost:8080
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_SECURE=false

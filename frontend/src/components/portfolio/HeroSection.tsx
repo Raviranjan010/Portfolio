@@ -72,6 +72,12 @@ const HeroSection = () => {
   const glareX = useSpring(useTransform(mouseX, [-0.5, 0.5], ["0%", "100%"]), { stiffness: 80, damping: 30 });
   const glareY = useSpring(useTransform(mouseY, [-0.5, 0.5], ["0%", "100%"]), { stiffness: 80, damping: 30 });
 
+  const glareStyle = {
+    background: "radial-gradient(circle 300px at var(--x) var(--y), rgba(255,255,255,0.8), transparent 80%)",
+    "--x": glareX,
+    "--y": glareY,
+  } as unknown as React.CSSProperties;
+
   return (
     <section
       ref={sectionRef}
@@ -232,11 +238,7 @@ const HeroSection = () => {
                 {/* Dynamic glare effect tracking mouse */}
                 <motion.div
                   className="absolute inset-0 opacity-0 group-hover:opacity-30 transition-opacity duration-500 pointer-events-none mix-blend-soft-light"
-                  style={{
-                    background: "radial-gradient(circle 300px at var(--x) var(--y), rgba(255,255,255,0.8), transparent 80%)",
-                    "--x": glareX,
-                    "--y": glareY
-                  } as any}
+                  style={glareStyle}
                 />
               </div>
 

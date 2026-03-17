@@ -1,13 +1,18 @@
 import { useRef, useCallback, useState } from "react";
 
-interface MagneticButtonProps {
-  children: React.ReactNode;
-  className?: string;
-  style?: React.CSSProperties;
+type AsTag = "button" | "a" | "div";
+
+type PropsForTag<T extends AsTag> =
+  T extends "button"
+    ? React.ComponentPropsWithoutRef<"button">
+    : T extends "a"
+      ? React.ComponentPropsWithoutRef<"a">
+      : React.ComponentPropsWithoutRef<"div">;
+
+type MagneticButtonProps<T extends AsTag = "button"> = {
+  as?: T;
   strength?: number;
-  as?: "button" | "a" | "div";
-  [key: string]: any;
-}
+} & Omit<PropsForTag<T>, "as">;
 
 const MagneticButton = ({
   children,
@@ -17,10 +22,10 @@ const MagneticButton = ({
   as: Tag = "button",
   ...props
 }: MagneticButtonProps) => {
-  const ref = useRef<HTMLElement>(null);
+  const ref = useRef<HTMLButtonElement | HTMLAnchorElement | HTMLDivElement>(null);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
 
-  const onMove = useCallback((e: React.MouseEvent) => {
+  const onMove = useCallback((e: React.MouseEvent<HTMLElement>) => {
     if (!ref.current) return;
     const rect = ref.current.getBoundingClientRect();
     const x = (e.clientX - rect.left - rect.width / 2) * strength;
@@ -34,7 +39,7 @@ const MagneticButton = ({
 
   return (
     <Tag
-      ref={ref as any}
+      ref={ref as unknown as never}
       className={className}
       style={{
         ...style,
@@ -47,7 +52,7 @@ const MagneticButton = ({
       }}
       onMouseMove={onMove}
       onMouseLeave={onLeave}
-      {...props}
+      {...(props as unknown as Record<string, unknown>)}
     >
       {children}
     </Tag>

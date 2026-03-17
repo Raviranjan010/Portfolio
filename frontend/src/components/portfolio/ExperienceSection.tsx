@@ -61,6 +61,7 @@ const ExperienceCard = ({ exp, index }: { exp: typeof experiences[0]; index: num
   const slideX = useSpring(useTransform(scrollYProgress, [0, 1], [isLeft ? -100 : 100, 0]), { stiffness: 60, damping: 20 });
   const cardOpacity = useTransform(scrollYProgress, [0, 0.4], [0, 1]);
   const cardBlur = useTransform(scrollYProgress, [0, 0.4], [12, 0]);
+  const cardFilter = useTransform(cardBlur, (value) => `blur(${value}px)`);
   const cardRotate = useSpring(useTransform(scrollYProgress, [0, 1], [isLeft ? -6 : 6, 0]), { stiffness: 60, damping: 20 });
   const nodeScale = useSpring(useTransform(scrollYProgress, [0.2, 0.6], [0, 1]), { stiffness: 120, damping: 20 });
 
@@ -68,7 +69,7 @@ const ExperienceCard = ({ exp, index }: { exp: typeof experiences[0]; index: num
     <div ref={cardRef} className="relative grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 md:gap-0 mb-12 md:mb-24 pl-6 md:pl-0">
       <div className={`flex ${isLeft ? "md:justify-end" : "md:justify-end md:order-3"}`}>
         {isLeft ? (
-          <motion.div style={{ x: slideX, opacity: cardOpacity, rotate: cardRotate, filter: useTransform(cardBlur, v => `blur(${v}px)`) }}
+          <motion.div style={{ x: slideX, opacity: cardOpacity, rotate: cardRotate, filter: cardFilter }}
             className="w-full md:max-w-md">
             <CardContent exp={exp} index={index} />
           </motion.div>
@@ -103,7 +104,7 @@ const ExperienceCard = ({ exp, index }: { exp: typeof experiences[0]; index: num
             </motion.span>
           </motion.div>
         ) : (
-          <motion.div style={{ x: slideX, opacity: cardOpacity, rotate: cardRotate, filter: useTransform(cardBlur, v => `blur(${v}px)`) }}
+          <motion.div style={{ x: slideX, opacity: cardOpacity, rotate: cardRotate, filter: cardFilter }}
             className="w-full md:max-w-md">
             <CardContent exp={exp} index={index} />
           </motion.div>
