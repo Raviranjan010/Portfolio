@@ -1,36 +1,33 @@
 import { useState, useRef } from "react";
 import { motion, useScroll, useTransform, useSpring, AnimatePresence } from "framer-motion";
+import { Code2, Layout, Terminal, Cpu, PenTool, GitBranch, MonitorPlay, Sparkles, Layers, Box, Globe, Database, Smartphone } from "lucide-react";
 
+// For each skill we assign an icon from lucide:
 const skills = [
-  // Frontend Development
-  { name: "HTML5", cat: "frontend", level: 95 },
-  { name: "CSS3", cat: "frontend", level: 92 },
-  { name: "JavaScript", cat: "frontend", level: 90 },
-  { name: "Responsive Design", cat: "frontend", level: 90 },
-  { name: "DOM Manipulation", cat: "frontend", level: 88 },
-  { name: "Animations (CSS/JS)", cat: "frontend", level: 87 },
+  { name: "HTML5", cat: "frontend", icon: Globe, proficiency: "Expert" },
+  { name: "CSS3", cat: "frontend", icon: Layout, proficiency: "Expert" },
+  { name: "JavaScript", cat: "frontend", icon: Code2, proficiency: "Expert" },
+  { name: "Responsive Design", cat: "frontend", icon: Smartphone, proficiency: "Expert" },
+  { name: "DOM Manipulation", cat: "frontend", icon: Box, proficiency: "Advanced" },
+  { name: "Animations (CSS/JS)", cat: "frontend", icon: Sparkles, proficiency: "Advanced" },
 
-  // Programming & Logic
-  { name: "C++", cat: "backend", level: 80 },
-  { name: "Object-Oriented Programming", cat: "backend", level: 82 },
-  { name: "Data Structures", cat: "backend", level: 78 },
+  { name: "C++", cat: "backend", icon: Terminal, proficiency: "Advanced" },
+  { name: "Object-Oriented Programming", cat: "backend", icon: Layers, proficiency: "Advanced" },
+  { name: "Data Structures", cat: "backend", icon: Database, proficiency: "Proficient" },
 
-  // Development Tools
-  { name: "Git & GitHub", cat: "tools", level: 85 },
-  { name: "VS Code", cat: "tools", level: 92 },
-  { name: "Chrome DevTools", cat: "tools", level: 85 },
-  { name: "Web Debugging", cat: "tools", level: 82 },
+  { name: "Git & GitHub", cat: "tools", icon: GitBranch, proficiency: "Advanced" },
+  { name: "VS Code", cat: "tools", icon: Code2, proficiency: "Expert" },
+  { name: "Chrome DevTools", cat: "tools", icon: MonitorPlay, proficiency: "Advanced" },
+  { name: "Web Debugging", cat: "tools", icon: Terminal, proficiency: "Advanced" },
 
-  // Design & Creativity
-  { name: "Figma", cat: "design", level: 88 },
-  { name: "Canva", cat: "design", level: 90 },
-  { name: "UI/UX Design", cat: "design", level: 87 },
-  { name: "Video Editing", cat: "design", level: 85 },
-  { name: "Graphic Design", cat: "design", level: 84 },
+  { name: "Figma", cat: "design", icon: PenTool, proficiency: "Expert" },
+  { name: "Canva", cat: "design", icon: Layout, proficiency: "Expert" },
+  { name: "UI/UX Design", cat: "design", icon: Sparkles, proficiency: "Advanced" },
+  { name: "Video Editing", cat: "design", icon: MonitorPlay, proficiency: "Advanced" },
+  { name: "Graphic Design", cat: "design", icon: PenTool, proficiency: "Advanced" },
 
-  // Emerging Tech
-  { name: "Artificial Intelligence Tools", cat: "tools", level: 75 },
-  { name: "Prompt Engineering", cat: "tools", level: 80 }
+  { name: "AI Tools", cat: "tools", icon: Cpu, proficiency: "Proficient" },
+  { name: "Prompt Engineering", cat: "tools", icon: Terminal, proficiency: "Advanced" }
 ];
 
 const categories = [
@@ -40,86 +37,82 @@ const categories = [
   { key: "design", label: "Design & Creativity", icon: "■" },
 ];
 
-/* ── Flip Card ── */
+/* ── Interactive Skill Card ── */
 const SkillCard = ({ skill, index }: { skill: typeof skills[0]; index: number }) => {
-  const [flipped, setFlipped] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const Icon = skill.icon;
   const fromLeft = index % 2 === 0;
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: fromLeft ? -60 : 60, rotateY: fromLeft ? -15 : 15 }}
-      whileInView={{ opacity: 1, x: 0, rotateY: 0 }}
+      initial={{ opacity: 0, x: fromLeft ? -40 : 40, y: 20 }}
+      whileInView={{ opacity: 1, x: 0, y: 0 }}
       viewport={{ once: false, margin: "-40px" }}
-      transition={{ duration: 0.6, delay: index * 0.06, ease: [0.22, 1, 0.36, 1] }}
-      className="perspective-[800px]"
+      transition={{ duration: 0.5, delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
     >
       <motion.div
-        className="relative w-full cursor-pointer"
-        style={{ transformStyle: "preserve-3d" }}
-        animate={{ rotateY: flipped ? 180 : 0 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        onClick={() => setFlipped(!flipped)}
-        whileHover={{ scale: 1.03, y: -4 }}
+        className="relative w-full cursor-pointer rounded-2xl overflow-hidden group"
+        style={{
+          background: "var(--bg-glass)",
+          border: "1px solid var(--border-accent)",
+        }}
+        onClick={() => setExpanded(!expanded)}
+        whileHover={{
+          scale: 1.02,
+          y: -4,
+          boxShadow: "0 10px 40px rgba(0,0,0,0.15), 0 0 20px var(--gold-glow)",
+          borderColor: "var(--gold)"
+        }}
+        transition={{ duration: 0.3 }}
       >
-        {/* Front */}
-        <div
-          className="rounded-2xl p-5 md:p-6 backface-hidden"
-          style={{
-            background: "var(--bg-glass)",
-            border: "1px solid var(--border-accent)",
-            backfaceVisibility: "hidden",
-          }}
-        >
-          <div className="flex items-center justify-between mb-3">
-            <span className="font-display text-base md:text-lg font-bold" style={{ color: "var(--text)" }}>
-              {skill.name}
-            </span>
-            <span className="font-mono text-[10px] tracking-widest uppercase" style={{ color: "var(--gold)" }}>
-              {skill.level}%
-            </span>
-          </div>
-          <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: "var(--border-raw)" }}>
-            <motion.div
-              className="h-full rounded-full"
-              style={{ background: "var(--gold)" }}
-              initial={{ width: 0 }}
-              whileInView={{ width: `${skill.level}%` }}
-              viewport={{ once: false }}
-              transition={{ duration: 1.2, delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
-            />
-          </div>
-          <p className="font-mono text-[9px] mt-2 tracking-wider" style={{ color: "var(--text-muted-raw)" }}>
-            TAP TO FLIP →
-          </p>
-        </div>
+        {/* Hover Glow Background */}
+        <div 
+          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+          style={{ background: "radial-gradient(circle at top right, rgba(232,197,71,0.1), transparent 70%)" }}
+        />
 
-        {/* Back */}
-        <div
-          className="absolute inset-0 rounded-2xl p-5 md:p-6 flex flex-col justify-center items-center"
-          style={{
-            background: "var(--gold)",
-            backfaceVisibility: "hidden",
-            transform: "rotateY(180deg)",
-          }}
-        >
-          <span className="font-display text-2xl font-black" style={{ color: "var(--bg)" }}>
-            {skill.name}
-          </span>
-          <div className="mt-2 flex items-center gap-2">
-            <span className="font-mono text-xs font-bold" style={{ color: "var(--bg)" }}>
-              {skill.level >= 90 ? "EXPERT" : skill.level >= 75 ? "ADVANCED" : "PROFICIENT"}
-            </span>
+        <div className="p-5 md:p-6 flex items-center gap-4 relative z-10 lg:pl-5">
+          <div 
+            className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-colors duration-300 group-hover:bg-[var(--gold)]"
+            style={{ background: "var(--gold-dim)", color: "var(--gold)" }}
+          >
+            <Icon size={24} className="group-hover:text-[var(--bg)] transition-colors duration-300" />
           </div>
-          <div className="mt-3 flex gap-1">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div
-                key={i}
-                className="w-2 h-2 rounded-full"
-                style={{
-                  background: i < Math.ceil(skill.level / 20) ? "var(--bg)" : "rgba(0,0,0,0.2)",
-                }}
-              />
-            ))}
+          
+          <div className="flex-1">
+            <h3 className="font-display text-lg md:text-xl font-bold transition-colors duration-300 group-hover:text-[var(--gold)]" style={{ color: "var(--text)" }}>
+              {skill.name}
+            </h3>
+            
+            <AnimatePresence mode="wait">
+              {expanded ? (
+                <motion.div
+                  key="expanded"
+                  initial={{ height: 0, opacity: 0, marginTop: 0 }}
+                  animate={{ height: "auto", opacity: 1, marginTop: 8 }}
+                  exit={{ height: 0, opacity: 0, marginTop: 0 }}
+                  className="overflow-hidden"
+                >
+                  <span 
+                    className="inline-block px-3 py-1 rounded-full font-mono text-[10px] uppercase tracking-widest font-bold"
+                    style={{ background: "rgba(232,197,71,0.1)", color: "var(--gold)", border: "1px solid rgba(232,197,71,0.2)" }}
+                  >
+                    {skill.proficiency}
+                  </span>
+                </motion.div>
+              ) : (
+                <motion.p
+                  key="collapsed"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="font-mono text-[9px] tracking-wider mt-1 opacity-60"
+                  style={{ color: "var(--text-muted-raw)" }}
+                >
+                  TAP TO EXPAND
+                </motion.p>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </motion.div>

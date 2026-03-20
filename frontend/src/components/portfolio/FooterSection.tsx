@@ -15,9 +15,9 @@ const navSections = [
   {
     title: "Navigation",
     links: [
-      { label: "Home",     href: "#home" },
+      { label: "Home",     href: "#" },
       { label: "About",    href: "#about" },
-      { label: "Work",     href: "#work" },
+      { label: "Work",     href: "#projects" },
       { label: "Skills",   href: "#skills" },
       { label: "Contact",  href: "#contact" },
     ],
@@ -26,18 +26,18 @@ const navSections = [
     title: "Projects",
     links: [
       { label: "All Projects",  href: "#projects" },
-      { label: "Open Source",   href: "#open-source" },
-      { label: "Case Studies",  href: "#case-studies" },
-      { label: "Archive",       href: "#archive" },
+      { label: "Certifications", href: "#certifications" },
+      { label: "Experience",      href: "#experience" },
+      { label: "Archive",         href: "#archive" },
     ],
   },
   {
     title: "Connect",
     links: [
       { label: "Hire Me",         href: "#contact" },
-      { label: "Resume / CV",     href: "#resume" },
-      { label: "Blog",            href: "#blog" },
-      { label: "Newsletter",      href: "#newsletter" },
+      { label: "Testimonials",    href: "#testimonials" },
+      { label: "Contact Form",    href: "#contact" },
+      { label: "Certifications", href: "#certifications" },
     ],
   },
 ];

@@ -6,6 +6,7 @@ const navItems = [
   { label: "About", href: "#about" },
   { label: "Skills", href: "#skills" },
   { label: "Experience", href: "#experience" },
+  { label: "Certifications", href: "#certifications" },
   { label: "Projects", href: "#projects" },
   { label: "Contact", href: "#contact" },
 ];
@@ -67,7 +68,11 @@ const Navbar = () => {
     setMenuOpen(false);
     setTransitioning(true);
     setTimeout(() => {
-      document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
+      const el = document.querySelector(href);
+      if (!el) return;
+      const navH = navRef.current?.getBoundingClientRect().height ?? 80;
+      const top = el.getBoundingClientRect().top + window.scrollY - navH - 12;
+      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
     }, 250);
     setTimeout(() => setTransitioning(false), 700);
   };

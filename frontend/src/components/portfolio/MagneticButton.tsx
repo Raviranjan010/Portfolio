@@ -14,14 +14,14 @@ type MagneticButtonProps<T extends AsTag = "button"> = {
   strength?: number;
 } & Omit<PropsForTag<T>, "as">;
 
-const MagneticButton = ({
+const MagneticButton = <T extends AsTag = "button">({
   children,
   className = "",
   style,
   strength = 0.35,
-  as: Tag = "button",
+  as: Tag = "button" as unknown as never,
   ...props
-}: MagneticButtonProps) => {
+}: MagneticButtonProps<T>) => {
   const ref = useRef<HTMLButtonElement | HTMLAnchorElement | HTMLDivElement>(null);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
 
@@ -38,6 +38,7 @@ const MagneticButton = ({
   }, []);
 
   return (
+    // @ts-ignore - TS cannot infer generic HTML attributes for dynamic component types
     <Tag
       ref={ref as unknown as never}
       className={className}

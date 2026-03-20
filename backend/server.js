@@ -169,6 +169,8 @@ app.post('/api/contact', async (req, res) => {
 
         if (delivery.delivered) {
             return res.status(201).json({
+                delivered: true,
+                saved: canPersist,
                 message: canPersist
                     ? 'Message sent successfully. Check your inbox for a confirmation email.'
                     : 'Message emailed successfully. Database storage is currently unavailable.',
@@ -182,6 +184,8 @@ app.post('/api/contact', async (req, res) => {
         }
 
         return res.status(202).json({
+            delivered: false,
+            saved: canPersist,
             message: canPersist
                 ? 'Message saved, but email delivery failed.'
                 : 'Message could not be stored because the database is unavailable, and email delivery failed.',

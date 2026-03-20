@@ -1,5 +1,5 @@
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import gallery1 from "@/assets/gallery-1.jpg";
 import gallery2 from "@/assets/gallery-2.jpg";
 import gallery3 from "@/assets/gallery-3.jpg";
@@ -44,10 +44,18 @@ const images: GalleryItem[] = [
   },
 ];
 
-const GalleryCard = ({ item, index }: { item: GalleryItem; index: number }) => {
+const GalleryCard = ({
+  item,
+  index,
+  onOpen,
+}: {
+  item: GalleryItem;
+  index: number;
+  onOpen: (index: number) => void;
+}) => {
   return (
     <motion.div
-      className="group relative flex h-[60vh] md:h-[70vh] w-[85vw] md:w-[60vw] max-w-4xl shrink-0 flex-col overflow-hidden rounded-2xl md:rounded-3xl shadow-2xl mr-8 md:mr-16"
+      className="group relative flex h-[60vh] md:h-[70vh] w-[85vw] md:w-[60vw] max-w-4xl shrink-0 flex-col overflow-hidden rounded-2xl md:rounded-3xl shadow-2xl mr-8 md:mr-16 cursor-pointer"
       style={{
         background: "rgba(9,11,16,0.9)",
         border: "1px solid rgba(255,255,255,0.08)",
@@ -56,6 +64,13 @@ const GalleryCard = ({ item, index }: { item: GalleryItem; index: number }) => {
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true, margin: "-100px" }}
       transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+      onClick={() => onOpen(index)}
+      role="button"
+      tabIndex={0}
+      aria-label={`Open gallery item: ${item.title}`}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") onOpen(index);
+      }}
     >
       {/* Background Image with Hover Scale */}
       <div className="absolute inset-0 overflow-hidden">
@@ -92,12 +107,23 @@ const GalleryCard = ({ item, index }: { item: GalleryItem; index: number }) => {
           {item.description}
         </p>
       </div>
+
+        {/* Hover CTA */}
+        <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-start justify-end p-4">
+          <div
+            className="rounded-full border border-[rgba(232,197,71,0.35)] bg-[rgba(232,197,71,0.07)] px-4 py-2 font-mono text-[10px] uppercase tracking-widest"
+            style={{ color: "#E8C547" }}
+          >
+            View
+          </div>
+        </div>
     </motion.div>
   );
 };
 
 const GallerySection = () => {
   const targetRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   const { scrollYProgress } = useScroll({
     target: targetRef,
@@ -106,8 +132,33 @@ const GallerySection = () => {
   // Map scroll progress to horizontal translation
   const x = useTransform(scrollYProgress, [0, 1], ["0%", "-100%"]);
 
+  const close = () => setActiveIndex(null);
+  const goPrev = () =>
+    setActiveIndex((i) => (i === null ? 0 : (i - 1 + images.length) % images.length));
+  const goNext = () =>
+    setActiveIndex((i) => (i === null ? 0 : (i + 1) % images.length));
+
+  useEffect(() => {
+    if (activeIndex === null) return;
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") close();
+      if (e.key === "ArrowLeft") goPrev();
+      if (e.key === "ArrowRight") goNext();
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [activeIndex]);
+
   return (
-    <section ref={targetRef} id="gallery" className="relative h-[300vh] bg-[#050505]">
+    <section ref={targetRef} id="archive" className="relative h-[300vh] bg-[#050505]">
       {/* Sticky Container */}
       <div className="sticky top-0 flex h-screen items-center overflow-hidden">
         {/* Header / Intro */}
@@ -137,7 +188,7 @@ const GallerySection = () => {
           <div className="w-[10vw] shrink-0 md:w-[35vw]" />
 
           {images.map((item, index) => (
-            <GalleryCard key={item.title} item={item} index={index} />
+            <GalleryCard key={item.title} item={item} index={index} onOpen={setActiveIndex} />
           ))}
 
           {/* Spacer at the end */}
@@ -163,6 +214,113 @@ const GallerySection = () => {
           </span>
         </motion.div>
       </div>
+
+      {/* Lightbox */}
+      <AnimatePresence>
+        {activeIndex !== null && (
+          <motion.div
+            className="fixed inset-0 z-[99999] flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            aria-modal="true"
+            role="dialog"
+          >
+            <div
+              className="absolute inset-0 bg-black/70"
+              onClick={close}
+              aria-hidden
+            />
+
+            <motion.div
+              className="relative w-[92vw] max-w-4xl rounded-2xl border border-white/10 bg-[#050505] overflow-hidden"
+              initial={{ scale: 0.98, y: 18, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.98, y: 18, opacity: 0 }}
+              transition={{ duration: 0.22 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="absolute top-3 right-3 z-10 flex gap-2">
+                <button
+                  type="button"
+                  onClick={close}
+                  className="rounded-full border border-white/15 bg-white/5 px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-white/80 hover:text-white hover:border-white/25 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+
+              <div className="relative">
+                <img
+                  src={images[activeIndex].image}
+                  alt={images[activeIndex].title}
+                  className="w-full h-[55vh] md:h-[65vh] object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+              </div>
+
+              <div className="p-6 md:p-8 relative z-10">
+                <div className="flex items-start justify-between gap-6">
+                  <div>
+                    <div className="flex items-center gap-3">
+                      <span className="rounded-full border border-[rgba(232,197,71,0.35)] bg-[rgba(232,197,71,0.07)] px-3 py-1 font-mono text-[10px] uppercase tracking-widest" style={{ color: "#E8C547" }}>
+                        {images[activeIndex].tag}
+                      </span>
+                      <span className="font-mono text-[10px] uppercase tracking-widest text-white/50">
+                        {images[activeIndex].year}
+                      </span>
+                    </div>
+                    <h3 className="font-display font-bold text-2xl md:text-3xl mt-3 text-white">
+                      {images[activeIndex].title}
+                    </h3>
+                    <p className="font-body text-sm md:text-base mt-3 text-white/70 leading-relaxed max-w-2xl">
+                      {images[activeIndex].description}
+                    </p>
+                  </div>
+
+                  <div className="hidden md:flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={goPrev}
+                      className="rounded-full border border-white/15 bg-white/5 px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-white/80 hover:text-white hover:border-white/25 transition-colors"
+                      aria-label="Previous gallery item"
+                    >
+                      Prev
+                    </button>
+                    <button
+                      type="button"
+                      onClick={goNext}
+                      className="rounded-full border border-white/15 bg-white/5 px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-white/80 hover:text-white hover:border-white/25 transition-colors"
+                      aria-label="Next gallery item"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex md:hidden items-center justify-between mt-6">
+                  <button
+                    type="button"
+                    onClick={goPrev}
+                    className="rounded-full border border-white/15 bg-white/5 px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-white/80 hover:text-white hover:border-white/25 transition-colors"
+                    aria-label="Previous gallery item"
+                  >
+                    Prev
+                  </button>
+                  <button
+                    type="button"
+                    onClick={goNext}
+                    className="rounded-full border border-white/15 bg-white/5 px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-white/80 hover:text-white hover:border-white/25 transition-colors"
+                    aria-label="Next gallery item"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 };

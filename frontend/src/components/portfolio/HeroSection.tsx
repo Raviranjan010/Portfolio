@@ -94,6 +94,15 @@ const HeroSection = () => {
           }}
         />
 
+        {/* Subtle Parallax Grain */}
+        <motion.div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+            y: smoothContentY,
+          }}
+        />
+
         {/* Giant Abstract Text in Background */}
         <motion.div
           className="absolute z-0 font-display font-black text-[clamp(12rem,12vw,14rem)] whitespace-nowrap opacity-[0.03] select-none text-[var(--text)] tracking-tighter"
@@ -120,7 +129,7 @@ const HeroSection = () => {
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2, duration: 0.8 }}
+              transition={{ delay: 0.2, duration: 1 }}
               className="flex items-center gap-4 mb-6 md:mb-8"
             >
               <div className="h-px w-8 lg:w-12 bg-gradient-to-r from-[var(--gold)] to-transparent opacity-80" />
@@ -138,17 +147,17 @@ const HeroSection = () => {
                 <motion.div
                   initial={{ width: 0, opacity: 0 }}
                   animate={{ width: "clamp(40px, 8vw, 80px)", opacity: 1 }}
-                  transition={{ delay: 0.8, duration: 0.8, ease: "easeOut" }}
+                  transition={{ delay: 1.0, duration: 0.8, ease: "easeOut" }}
                   className="h-[clamp(4px,1vw,8px)] bg-[var(--gold)] hidden sm:block mt-1 sm:mt-0"
                 />
-                <FadeUpText text={lastName} delay={0.5} />
+                <FadeUpText text={lastName} delay={0.6} />
               </div>
             </div>
 
             <motion.div
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.9, duration: 0.8 }}
+              transition={{ delay: 0.8, duration: 0.8 }}
               className="mb-10 md:mb-12"
             >
               <h2 className="font-mono text-xs md:text-sm tracking-[0.3em] uppercase text-[var(--gold)] mb-5 flex items-center gap-3">
@@ -166,10 +175,11 @@ const HeroSection = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.1, duration: 0.8 }}
+              transition={{ delay: 1.0, duration: 0.8 }}
               className="flex flex-col sm:flex-row items-stretch sm:items-center gap-6"
             >
               <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
+                {/* @ts-ignore - Polymorphic 'as' prop is valid but TS inference fails here */}
                 <MagneticButton
                   as="a" href="#projects"
                   onClick={(e: React.MouseEvent) => { e.preventDefault(); document.querySelector("#projects")?.scrollIntoView({ behavior: "smooth" }); }}
@@ -177,7 +187,7 @@ const HeroSection = () => {
                   style={{ borderRadius: "2px" }}
                   strength={0.2}
                 >
-                  <span className="relative z-10 flex items-centerjustify-center gap-2 font-bold w-full h-full">
+                  <span className="relative z-10 flex items-center justify-center gap-2 font-bold w-full h-full">
                     Explore Work
                     <ExternalLink size={15} className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                   </span>
@@ -185,6 +195,7 @@ const HeroSection = () => {
 
                 <div className="flex items-center justify-center gap-3 flex-1 sm:flex-none">
                   {socials.map((s) => (
+                    /* @ts-ignore - Polymorphic 'as' prop is valid but TS inference fails here */
                     <MagneticButton
                       key={s.label} as="a" href={s.href} target="_blank" rel="noopener noreferrer"
                       className="w-[50px] h-[50px] md:w-14 md:h-14 flex items-center justify-center rounded-sm transition-all duration-300 group ring-1 ring-[var(--border-raw)] bg-[var(--bg-glass)] hover:bg-[var(--gold-dim)] hover:ring-[var(--border-accent)]"
@@ -208,7 +219,7 @@ const HeroSection = () => {
             style={{ y: smoothPortraitY }}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.6, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ delay: 0.4, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
             className="w-full lg:w-[45%] relative flex justify-center lg:justify-end perspective-1000 mt-6 lg:mt-0 z-10"
           >
             {/* The Glassmorphism Architectural Frame */}
@@ -228,7 +239,7 @@ const HeroSection = () => {
                 <img
                   src={heroPortrait}
                   alt="Ravi Ranjan"
-                  className="w-full h-full object-cover object-center translate-z-0 scale-105 group-hover:scale-100 transition-transform duration-[1.5s] ease-[0.16,1,0.3,1] will-change-transform"
+                  className="w-full h-full object-cover object-center translate-z-0 scale-105 group-hover:scale-100 transition-transform duration-1000 ease-in-out will-change-transform"
                 />
 
                 {/* Internal Fine Vignette */}
@@ -250,7 +261,7 @@ const HeroSection = () => {
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 1.4, duration: 0.8 }}
+                transition={{ delay: 1.2, duration: 0.8 }}
                 className="absolute bottom-6 -left-4 md:-left-10 glass px-5 md:px-6 py-3.5 md:py-4 rounded-sm flex flex-col gap-1 translate-z-30 shadow-[0_20px_40px_rgba(0,0,0,0.4)] border border-[var(--border-accent)] backdrop-blur-xl"
               >
                 <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-[var(--gold)]">Location</span>

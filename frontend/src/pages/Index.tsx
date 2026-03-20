@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { Suspense, lazy, useCallback, useState } from "react";
 import { motion } from "framer-motion";
 import AboutSection from "@/components/portfolio/AboutSection";
 import ContactSection from "@/components/portfolio/ContactSection";
@@ -7,14 +7,16 @@ import CustomCursor from "@/components/portfolio/CustomCursor";
 import ExperienceSection from "@/components/portfolio/ExperienceSection";
 import FloatingParticles from "@/components/portfolio/FloatingParticles";
 import FooterSection from "@/components/portfolio/FooterSection";
-import GallerySection from "@/components/portfolio/GallerySection";
 import HeroSection from "@/components/portfolio/HeroSection";
 import LoadingScreen from "@/components/portfolio/LoadingScreen";
 import Navbar from "@/components/portfolio/Navbar";
-import ProjectsSection from "@/components/portfolio/ProjectsSection";
 import SectionDivider from "@/components/portfolio/SectionDivider";
 import SkillsSection from "@/components/portfolio/SkillsSection";
-import TestimonialsSection from "@/components/portfolio/TestimonialsSection";
+import CertificationsSection from "@/components/portfolio/CertificationsSection";
+
+const ProjectsSection = lazy(() => import("@/components/portfolio/ProjectsSection"));
+const GallerySection = lazy(() => import("@/components/portfolio/GallerySection"));
+const TestimonialsSection = lazy(() => import("@/components/portfolio/TestimonialsSection"));
 
 const Index = () => {
   const [loading, setLoading] = useState(true);
@@ -33,21 +35,22 @@ const Index = () => {
       <SectionDivider text="EXPERTISE -" direction="right" />
       <SkillsSection />
       <SectionDivider text="SELECTED WORK -" direction="left" />
-      <motion.div
-        initial={{ opacity: 0, y: 100 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-      >
-        <ExperienceSection />
+      <ExperienceSection />
+      <SectionDivider text="CERTIFICATIONS -" direction="right" />
+      <CertificationsSection />
       <SectionDivider text="VISUAL ARCHIVE -" direction="left" />
+      <Suspense fallback={null}>
         <ProjectsSection />
-      </motion.div>
+      </Suspense>
       <SectionDivider text="CAREER PATH -" direction="right" />
       
-      <GallerySection />
+      <Suspense fallback={null}>
+        <GallerySection />
+      </Suspense>
       <SectionDivider text="KIND WORDS -" direction="right" />
-      <TestimonialsSection />
+      <Suspense fallback={null}>
+        <TestimonialsSection />
+      </Suspense>
       <SectionDivider text="LET'S CONNECT -" direction="left" />
       <ContactSection />
       <FooterSection />

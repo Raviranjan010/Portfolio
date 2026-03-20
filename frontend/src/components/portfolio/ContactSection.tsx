@@ -15,9 +15,11 @@ const ContactSection = () => {
   const [formData, setFormData] = useState<ContactFormData>({ name: "", email: "", subject: "", message: "" });
   const [errors, setErrors] = useState<Partial<Record<keyof ContactFormData, string>>>({});
   const [sending, setSending] = useState(false);
-  const [sent, setSent] = useState(false);
+  type DeliveryState = "idle" | "success" | "warning" | "error";
+  const [deliveryState, setDeliveryState] = useState<DeliveryState>("idle");
   const [focused, setFocused] = useState<string | null>(null);
   const [serverMessage, setServerMessage] = useState("");
+  const nameInputRef = useRef<HTMLInputElement>(null);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -60,7 +62,16 @@ const ContactSection = () => {
   };
 
   const updateField = (field: keyof ContactFormData, value: string) => {
-    setFormData((current) => ({ ...current, [field]: value }));
+    const maxByField: Partial<Record<keyof ContactFormData, number>> = {
+      name: 100,
+      email: 160,
+      subject: 160,
+      message: 5000,
+    };
+    const max = maxByField[field];
+    const nextValue = typeof max === "number" ? value.slice(0, max) : value;
+
+    setFormData((current) => ({ ...current, [field]: nextValue }));
     setErrors((current) => {
       if (!current[field]) return current;
       const next = { ...current };
@@ -76,48 +87,75 @@ const ContactSection = () => {
     setSending(true);
     setServerMessage("");
 
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 15000);
+
     try {
+
       const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
       const res = await fetch(`${apiUrl}/contact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
+        signal: controller.signal,
       });
-      const payload = await res.json().catch(() => ({}));
+      window.clearTimeout(timeoutId);
+
+      const payload: {
+        message?: string;
+        warning?: string;
+        delivered?: boolean;
+        saved?: boolean;
+      } = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        throw new Error(payload.message || "Failed to send message");
+        throw new Error(payload.message || payload.warning || "Failed to send message");
       }
 
-      setSending(false);
-      const warningMessage = payload.warning || payload.message || "";
-      setSent(res.status !== 202);
-      setServerMessage(warningMessage);
-      setFormData({ name: "", email: "", subject: "", message: "" });
-      setErrors({});
+      const delivered = payload.delivered === true || res.status === 201;
+      const saved = payload.saved === true;
 
-      if (res.status === 202) {
-        toast.warning(warningMessage || "Message saved, but email delivery failed.");
+      if (delivered) {
+        setDeliveryState("success");
+        setServerMessage(payload.message || payload.warning || "");
+        setFormData({ name: "", email: "", subject: "", message: "" });
+        setErrors({});
+        setFocused(null);
+        toast.success(payload.message || "Message sent successfully.");
+      } else if (saved) {
+        // Delivered == false, but we successfully persisted the message
+        setDeliveryState("warning");
+        setServerMessage(payload.message || payload.warning || "");
+        setFormData({ name: "", email: "", subject: "", message: "" });
+        setErrors({});
+        setFocused(null);
+        toast.warning(payload.message || "Message saved, but email delivery failed.");
       } else {
-        toast.success("Message sent successfully.");
+        // Could not deliver and could not persist
+        setDeliveryState("error");
+        setServerMessage(payload.message || payload.warning || "");
+        toast.error(payload.message || payload.warning || "Message delivery failed. Please try again.");
       }
     } catch (err) {
+      window.clearTimeout(timeoutId);
       console.error(err);
-      setSending(false);
       const message = err instanceof Error ? err.message : "Something went wrong. Please try again.";
       setServerMessage(message);
+      setDeliveryState("error");
       toast.error(message);
+    } finally {
+      setSending(false);
     }
   };
 
-  const inputStyle = (field: string) => ({
-    borderBottom: `1px solid ${errors[field as keyof ContactFormData] ? "#f87171" : focused === field ? "var(--gold)" : "var(--border-raw)"}`,
-    background: "transparent",
-    color: "var(--text)",
-    transition: "border-color 0.3s, box-shadow 0.3s",
+  const inputContainerStyle = (field: string) => ({
+    border: `1px solid ${errors[field as keyof ContactFormData] ? "rgba(248, 113, 113, 0.5)" : focused === field ? "var(--gold)" : "rgba(255,255,255,0.06)"}`,
+    background: focused === field ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.02)",
+    borderRadius: "16px",
+    transition: "all 0.3s ease",
     boxShadow: errors[field as keyof ContactFormData]
-      ? "0 2px 8px rgba(248, 113, 113, 0.16)"
-      : focused === field ? "0 2px 8px var(--gold-dim)" : "none",
+      ? "0 0 0 3px rgba(248, 113, 113, 0.15)"
+      : focused === field ? "0 0 0 3px rgba(232, 197, 71, 0.15)" : "none",
   });
 
   const fields = [
@@ -207,7 +245,7 @@ const ContactSection = () => {
           className="lg:w-[60%]"
         >
           <AnimatePresence mode="wait">
-            {!sent ? (
+            {deliveryState === "idle" ? (
               <motion.form
                 key="form"
                 onSubmit={handleSubmit}
@@ -218,38 +256,56 @@ const ContactSection = () => {
                 {fields.map((field, i) => (
                   <motion.div
                     key={field.key}
-                    className="relative pt-5"
+                    className="relative"
                     initial={{ opacity: 0, x: 30 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: false }}
                     transition={{ delay: 0.1 + i * 0.08, duration: 0.5 }}
                   >
-                    <label
-                      className="absolute left-0 top-0 font-body text-xs pointer-events-none transition-all duration-300"
-                      style={{
-                        color: errors[field.key as keyof ContactFormData]
-                          ? "#fca5a5"
-                          : focused === field.key || formData[field.key as keyof typeof formData]
-                          ? "var(--gold)" : "var(--text-muted-raw)",
-                        transform: focused === field.key || formData[field.key as keyof typeof formData]
-                          ? "translateY(0) scale(0.85)" : "translateY(20px) scale(1)",
-                        transformOrigin: "left",
-                      }}
-                    >
-                      {field.label}
-                    </label>
-                    <input
-                      type={field.type}
-                      required
-                      className="w-full py-2 font-body text-sm md:text-base outline-none"
-                      style={inputStyle(field.key)}
-                      value={formData[field.key as keyof typeof formData]}
-                      onChange={(e) => updateField(field.key as keyof ContactFormData, e.target.value)}
-                      onFocus={() => setFocused(field.key)}
-                      onBlur={() => setFocused(null)}
-                    />
+                    <div className="relative pt-6 pb-2 px-5" style={inputContainerStyle(field.key)}>
+                      <label
+                        htmlFor={`contact-${field.key}`}
+                        className="absolute left-5 top-5 font-body text-xs pointer-events-none transition-all duration-300"
+                        style={{
+                          color: errors[field.key as keyof ContactFormData]
+                            ? "#fca5a5"
+                            : focused === field.key || formData[field.key as keyof typeof formData]
+                            ? "var(--gold)" : "var(--text-muted-raw)",
+                          transform: focused === field.key || formData[field.key as keyof typeof formData]
+                            ? "translateY(-12px) scale(0.85)" : "translateY(2px) scale(1)",
+                          transformOrigin: "left",
+                        }}
+                      >
+                        {field.label}
+                      </label>
+                      <input
+                        type={field.type}
+                        required
+                        id={`contact-${field.key}`}
+                        ref={field.key === "name" ? nameInputRef : undefined}
+                        aria-invalid={Boolean(errors[field.key as keyof ContactFormData])}
+                        aria-describedby={
+                          errors[field.key as keyof ContactFormData]
+                            ? `contact-${field.key}-error`
+                            : undefined
+                        }
+                        className="w-full font-body text-sm md:text-base outline-none bg-transparent"
+                        style={{ color: "var(--text)" }}
+                        value={formData[field.key as keyof typeof formData]}
+                        onChange={(e) => updateField(field.key as keyof ContactFormData, e.target.value)}
+                        onFocus={() => setFocused(field.key)}
+                        onBlur={() => setFocused(null)}
+                        autoComplete={field.key === "email" ? "email" : field.key === "name" ? "name" : "off"}
+                        maxLength={field.key === "name" ? 100 : field.key === "email" ? 160 : 160}
+                      />
+                    </div>
                     {errors[field.key as keyof ContactFormData] && (
-                      <p className="mt-2 text-xs font-body" style={{ color: "#fca5a5" }}>
+                      <p
+                        id={`contact-${field.key}-error`}
+                        className="mt-2 text-xs font-body pl-2"
+                        style={{ color: "#fca5a5" }}
+                        role="alert"
+                      >
                         {errors[field.key as keyof ContactFormData]}
                       </p>
                     )}
@@ -257,35 +313,47 @@ const ContactSection = () => {
                 ))}
 
                 <motion.div
-                  className="relative pt-5"
+                  className="relative"
                   initial={{ opacity: 0, x: 30 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: false }}
                   transition={{ delay: 0.34, duration: 0.5 }}
                 >
-                  <label
-                    className="absolute left-0 top-0 font-body text-xs pointer-events-none transition-all duration-300"
-                    style={{
-                      color: errors.message ? "#fca5a5" : focused === "message" || formData.message ? "var(--gold)" : "var(--text-muted-raw)",
-                      transform: focused === "message" || formData.message ? "translateY(0) scale(0.85)" : "translateY(20px) scale(1)",
-                      transformOrigin: "left",
-                    }}
-                  >
-                    Your Message
-                  </label>
-                  <textarea
-                    required
-                    rows={4}
-                    className="w-full py-2 font-body text-sm md:text-base outline-none resize-none"
-                    style={inputStyle("message")}
-                    value={formData.message}
-                    onChange={(e) => updateField("message", e.target.value)}
-                    onFocus={() => setFocused("message")}
-                    onBlur={() => setFocused(null)}
-                  />
-                  <div className="mt-2 flex items-center justify-between gap-4">
+                  <div className="relative pt-6 pb-2 px-5" style={inputContainerStyle("message")}>
+                    <label
+                      htmlFor="contact-message"
+                      className="absolute left-5 top-5 font-body text-xs pointer-events-none transition-all duration-300"
+                      style={{
+                        color: errors.message ? "#fca5a5" : focused === "message" || formData.message ? "var(--gold)" : "var(--text-muted-raw)",
+                        transform: focused === "message" || formData.message ? "translateY(-12px) scale(0.85)" : "translateY(2px) scale(1)",
+                        transformOrigin: "left",
+                      }}
+                    >
+                      Your Message
+                    </label>
+                    <textarea
+                      required
+                      id="contact-message"
+                      aria-invalid={Boolean(errors.message)}
+                      aria-describedby={errors.message ? "contact-message-error" : undefined}
+                      rows={4}
+                      className="w-full font-body text-sm md:text-base outline-none resize-none bg-transparent pt-2"
+                      style={{ color: "var(--text)" }}
+                      value={formData.message}
+                      onChange={(e) => updateField("message", e.target.value)}
+                      onFocus={() => setFocused("message")}
+                      onBlur={() => setFocused(null)}
+                      maxLength={5000}
+                    />
+                  </div>
+                  <div className="mt-2 flex items-center justify-between gap-4 px-2">
                     {errors.message ? (
-                      <p className="text-xs font-body" style={{ color: "#fca5a5" }}>
+                      <p
+                        id="contact-message-error"
+                        className="text-xs font-body"
+                        style={{ color: "#fca5a5" }}
+                        role="alert"
+                      >
                         {errors.message}
                       </p>
                     ) : (
@@ -307,6 +375,8 @@ const ContactSection = () => {
                       background: "rgba(232, 197, 71, 0.06)",
                       color: "var(--text-muted-raw)",
                     }}
+                    role="status"
+                    aria-live="polite"
                   >
                     <p className="font-body text-sm">{serverMessage}</p>
                   </motion.div>
@@ -336,32 +406,142 @@ const ContactSection = () => {
               </motion.form>
             ) : (
               <motion.div
-                key="success"
+                key={deliveryState}
                 initial={{ opacity: 0, scale: 0.85, rotateX: -10 }}
                 animate={{ opacity: 1, scale: 1, rotateX: 0 }}
                 transition={{ type: "spring", stiffness: 200 }}
                 className="flex flex-col items-center justify-center py-16"
               >
-                <motion.svg
-                  width="64"
-                  height="64"
-                  viewBox="0 0 80 80"
-                  className="mb-6"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
-                >
-                  <circle cx="40" cy="40" r="36" fill="none" stroke="var(--gold)" strokeWidth="2"
-                    style={{ strokeDasharray: 230, strokeDashoffset: 230, animation: "draw-line 0.8s ease forwards" }}
-                  />
-                  <path d="M24 42 L35 53 L56 28" fill="none" stroke="var(--gold)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
-                    style={{ strokeDasharray: 60, strokeDashoffset: 60, animation: "draw-line 0.6s ease forwards 0.5s" }}
-                  />
-                </motion.svg>
-                <h3 className="font-display text-2xl font-bold mb-2" style={{ color: "var(--text)" }}>Message Sent</h3>
-                <p className="font-body text-sm" style={{ color: "var(--text-muted-raw)" }}>
-                  {serverMessage || "Thank you! I'll get back to you within 24 hours."}
-                </p>
+                {deliveryState === "success" && (
+                  <>
+                    <motion.svg
+                      width="64"
+                      height="64"
+                      viewBox="0 0 80 80"
+                      className="mb-6"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
+                    >
+                      <circle
+                        cx="40"
+                        cy="40"
+                        r="36"
+                        fill="none"
+                        stroke="var(--gold)"
+                        strokeWidth="2"
+                        style={{ strokeDasharray: 230, strokeDashoffset: 230, animation: "draw-line 0.8s ease forwards" }}
+                      />
+                      <path
+                        d="M24 42 L35 53 L56 28"
+                        fill="none"
+                        stroke="var(--gold)"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        style={{ strokeDasharray: 60, strokeDashoffset: 60, animation: "draw-line 0.6s ease forwards 0.5s" }}
+                      />
+                    </motion.svg>
+                    <h3 className="font-display text-2xl font-bold mb-2" style={{ color: "var(--text)" }}>Message Sent</h3>
+                    <p className="font-body text-sm" style={{ color: "var(--text-muted-raw)", textAlign: "center", maxWidth: 420 }}>
+                      {serverMessage || "Thank you! I'll get back to you within 24 hours."}
+                    </p>
+                  </>
+                )}
+
+                {deliveryState === "warning" && (
+                  <>
+                    <motion.svg
+                      width="64"
+                      height="64"
+                      viewBox="0 0 80 80"
+                      className="mb-6"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
+                    >
+                      <circle cx="40" cy="40" r="36" fill="none" stroke="var(--gold)" strokeWidth="2"
+                        style={{ strokeDasharray: 230, strokeDashoffset: 230, animation: "draw-line 0.8s ease forwards" }}
+                      />
+                      <path d="M40 22 L40 46" fill="none" stroke="var(--gold)" strokeWidth="3" strokeLinecap="round"
+                        style={{ strokeDasharray: 40, strokeDashoffset: 40, animation: "draw-line 0.6s ease forwards 0.2s" }}
+                      />
+                      <circle cx="40" cy="58" r="3.2" fill="var(--gold)" />
+                    </motion.svg>
+                    <h3 className="font-display text-2xl font-bold mb-2" style={{ color: "var(--text)" }}>Message Saved</h3>
+                    <p className="font-body text-sm" style={{ color: "var(--text-muted-raw)", textAlign: "center", maxWidth: 420 }}>
+                      {serverMessage || "Your message is saved, but email delivery failed. I'll check it from my inbox logs."}
+                    </p>
+                  </>
+                )}
+
+                {deliveryState === "error" && (
+                  <>
+                    <motion.svg
+                      width="64"
+                      height="64"
+                      viewBox="0 0 80 80"
+                      className="mb-6"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
+                    >
+                      <circle
+                        cx="40"
+                        cy="40"
+                        r="36"
+                        fill="none"
+                        stroke="#fca5a5"
+                        strokeWidth="2"
+                        style={{ strokeDasharray: 230, strokeDashoffset: 230, animation: "draw-line 0.8s ease forwards" }}
+                      />
+                      <path
+                        d="M28 28 L52 52"
+                        fill="none"
+                        stroke="#fca5a5"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        style={{ strokeDasharray: 60, strokeDashoffset: 60, animation: "draw-line 0.6s ease forwards 0.2s" }}
+                      />
+                      <path
+                        d="M52 28 L28 52"
+                        fill="none"
+                        stroke="#fca5a5"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        style={{ strokeDasharray: 60, strokeDashoffset: 60, animation: "draw-line 0.6s ease forwards 0.35s" }}
+                      />
+                    </motion.svg>
+                    <h3 className="font-display text-2xl font-bold mb-2" style={{ color: "var(--text)" }}>Couldn’t Send</h3>
+                    <p className="font-body text-sm" style={{ color: "var(--text-muted-raw)", textAlign: "center", maxWidth: 420 }}>
+                      {serverMessage || "Please try again in a moment."}
+                    </p>
+                  </>
+                )}
+
+                <div className="mt-8 w-full max-w-[320px]">
+                  <MagneticButton
+                    as="button"
+                    type="button"
+                    className="w-full py-3.5 rounded-lg font-body text-sm tracking-widest uppercase transition-all duration-300"
+                    style={{
+                      background: "rgba(232,197,71,0.08)",
+                      color: "var(--gold)",
+                      border: "1px solid rgba(232,197,71,0.35)",
+                      boxShadow: deliveryState === "error" ? "none" : "0 8px 30px var(--gold-glow)",
+                    }}
+                    strength={0.15}
+                    onClick={() => {
+                      setDeliveryState("idle");
+                      setServerMessage("");
+                      setErrors({});
+                      setFocused(null);
+                      setTimeout(() => nameInputRef.current?.focus(), 50);
+                    }}
+                  >
+                    {deliveryState === "success" ? "Send Another Message" : deliveryState === "warning" ? "Try Again" : "Try Again"}
+                  </MagneticButton>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>

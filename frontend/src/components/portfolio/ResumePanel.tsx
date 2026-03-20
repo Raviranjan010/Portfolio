@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Award, Briefcase, Download, GraduationCap, Sparkles, X } from "lucide-react";
+import { Award, Briefcase, Download, GraduationCap, Sparkles, X, ChevronDown } from "lucide-react";
 import { createPortal } from "react-dom";
 
 type WorkItem = {
@@ -19,56 +19,64 @@ type EducationItem = {
 
 const workHistory: WorkItem[] = [
   {
-    period: "2024 - Present",
-    role: "Senior Full-Stack Engineer",
-    company: "Zenith Labs",
-    details: "Leading fintech infrastructure delivery across live trading surfaces, internal platform tooling, and performance-critical services.",
-    metrics: "100K+ events/sec",
+    period: "2025",
+    role: "Web Developer & UI/UX Designer",
+    company: "Personal Projects & Portfolio",
+    details: "Building modern web applications with a focus on clean UI, smooth animations, and interactive user experiences. Developing creative tools, portfolio systems, and web utilities using modern frontend technologies.",
+    metrics: "HTML, CSS, JS, Design",
   },
   {
-    period: "2022 - 2024",
-    role: "Full-Stack Developer",
-    company: "Nomad Creative",
-    details: "Built motion-led web experiences and reusable design systems for premium brands, campaigns, and editorial launches.",
-    metrics: "15+ launches",
+    period: "2024",
+    role: "Frontend Developer",
+    company: "Academic & Personal Projects",
+    details: "Developed multiple web-based projects including a sticker tag generator, animated timeline interface, and interactive web tools. Focused on responsive design and creative UI animations.",
+    metrics: "DOM, Animations",
   },
   {
-    period: "2021 - 2022",
-    role: "Frontend Engineer",
-    company: "EcoTech Solutions",
-    details: "Shipped a climate intelligence dashboard with accessible data visualization and a product UX tuned for repeat engagement.",
-    metrics: "50K+ active users",
+    period: "2023",
+    role: "Computer Science Student",
+    company: "Lovely Professional University",
+    details: "Started exploring web development, programming fundamentals, and data structures while pursuing a Computer Science degree. Built several projects to strengthen development skills and logical thinking.",
+    metrics: "C++, OOP, DSA",
   },
   {
-    period: "2020 - 2021",
-    role: "Junior Developer",
-    company: "StartupForge",
-    details: "Handled full-stack product delivery across APIs, landing pages, deployment pipelines, and internal automation.",
-    metrics: "0 to 1 product ops",
+    period: "2022",
+    role: "Design & Creative Tools Explorer",
+    company: "Self Learning",
+    details: "Explored creative tools like Figma and Canva while learning modern UI/UX principles. Created design assets, social media content, and visual interfaces.",
+    metrics: "Figma, Canva",
+  },
+  {
+    period: "2024",
+    role: "AI & Generative Tech Learner",
+    company: "Self Learning",
+    details: "Completed courses on generative AI and image generation while experimenting with prompt engineering and creative AI tools.",
+    metrics: "Gen AI, Prompts",
   },
 ];
 
 const education: EducationItem[] = [
-  { period: "2016 - 2020", title: "B.Sc. Computer Science", institution: "MIT" },
+  { period: "2023 - Present", title: "B.Tech Computer Science", institution: "Lovely Professional University" },
 ];
 
 const certifications = [
-  "AWS Solutions Architect",
-  "Google Cloud Professional",
-  "Meta Frontend Developer",
+  "Frontend Web Development",
+  "Generative AI Concepts",
+  "UI/UX Visual Design",
 ];
 
-const strengths = ["React", "TypeScript", "Node", "System Design", "Framer Motion", "Product UI"];
+const strengths = ["React", "JavaScript", "C++", "Tailwind", "Framer Motion", "Figma"];
 
 const stats = [
-  { label: "Years Building", value: "5+" },
-  { label: "Products Shipped", value: "20+" },
-  { label: "Specialty", value: "Full Stack" },
+  { label: "Years Learning", value: "3+" },
+  { label: "Projects Built", value: "20+" },
+  { label: "Specialty", value: "Frontend" },
 ];
 
 const ResumePanel = () => {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
 
   useEffect(() => {
     setMounted(true);
@@ -228,7 +236,7 @@ const ResumePanel = () => {
                           onClick={() => setOpen(false)}
                           whileHover={{ scale: 1.06, rotate: 90 }}
                           whileTap={{ scale: 0.96 }}
-                          className="flex h-10 w-10 items-center justify-center rounded-full"
+                          className="flex h-10 w-10 items-center justify-center rounded-full flex-shrink-0"
                           style={{ border: "1px solid rgba(255,255,255,0.12)", color: "var(--text-muted-raw)" }}
                           aria-label="Close resume panel"
                         >
@@ -255,8 +263,8 @@ const ResumePanel = () => {
                             <h3 className="font-display text-2xl font-black md:text-3xl" style={{ color: "var(--text)" }}>
                               Ravi Ranjan
                             </h3>
-                            <p className="mt-2 font-body text-sm md:text-base" style={{ color: "var(--text-muted-raw)" }}>
-                              Full-Stack Developer and Creative Engineer focused on premium UI systems, scalable frontend architecture, and production-quality motion.
+                            <p className="mt-2 font-body text-sm md:text-base relative z-10" style={{ color: "var(--text-muted-raw)" }}>
+                              Web Developer and Creative Explorer focused on modern UI systems, responsive frontend design, and smooth user interactions.
                             </p>
                           </div>
 
@@ -265,7 +273,7 @@ const ResumePanel = () => {
                             onClick={handleDownload}
                             whileHover={{ y: -2, scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
-                            className="inline-flex items-center gap-2 rounded-full px-4 py-3 font-mono text-[10px] uppercase tracking-[0.24em]"
+                            className="inline-flex items-center gap-2 rounded-full px-4 py-3 font-mono text-[10px] uppercase tracking-[0.24em] flex-shrink-0 relative z-10"
                             style={{ color: "var(--bg)", background: "var(--gold)", boxShadow: "0 10px 28px rgba(232,197,71,0.24)" }}
                           >
                             <Download size={14} />
@@ -273,7 +281,7 @@ const ResumePanel = () => {
                           </motion.button>
                         </div>
 
-                    <div className="mt-6 grid grid-cols-3 gap-3">
+                    <div className="mt-6 grid grid-cols-3 gap-3 relative z-10">
                       {stats.map((item) => (
                         <div
                           key={item.label}
@@ -290,7 +298,7 @@ const ResumePanel = () => {
                       ))}
                     </div>
 
-                    <div className="mt-5 flex flex-wrap gap-2">
+                    <div className="mt-5 flex flex-wrap gap-2 relative z-10">
                       {strengths.map((strength) => (
                         <span
                           key={strength}
@@ -311,46 +319,74 @@ const ResumePanel = () => {
                           </h3>
                         </div>
                         <div className="space-y-4">
-                          {workHistory.map((item, index) => (
-                            <motion.div
-                              key={`${item.company}-${item.period}`}
-                              initial={{ opacity: 0, x: 26 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: 0.12 + index * 0.07, duration: 0.45 }}
-                              className="relative overflow-hidden rounded-[24px] p-5"
-                              style={{
-                                border: "1px solid rgba(255,255,255,0.08)",
-                                background: "linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015))",
-                              }}
-                            >
-                              <div
-                                className="absolute bottom-0 left-0 top-0 w-[3px]"
-                                style={{ background: "linear-gradient(180deg, var(--gold), rgba(232,197,71,0.08))" }}
-                              />
-                              <div className="flex flex-wrap items-start justify-between gap-3 pl-3">
-                                <div>
-                                  <p className="font-mono text-[10px] uppercase tracking-[0.18em]" style={{ color: "var(--text-dim)" }}>
-                                    {item.period}
-                                  </p>
-                                  <h4 className="mt-2 font-display text-lg font-black md:text-xl" style={{ color: "var(--text)" }}>
-                                    {item.role}
-                                  </h4>
-                                  <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.24em]" style={{ color: "var(--gold)" }}>
-                                    {item.company}
-                                  </p>
-                                </div>
+                          {workHistory.map((item, index) => {
+                            const isExpanded = expandedIndex === index;
+                            
+                            return (
+                              <motion.div
+                                key={`${item.company}-${item.period}`}
+                                initial={{ opacity: 0, x: 26 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.12 + index * 0.07, duration: 0.45 }}
+                                className="relative overflow-hidden rounded-[24px] cursor-pointer"
+                                style={{
+                                  border: isExpanded ? "1px solid var(--border-accent)" : "1px solid rgba(255,255,255,0.08)",
+                                  background: isExpanded ? "rgba(255,255,255,0.04)" : "linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015))",
+                                }}
+                                onClick={() => setExpandedIndex(isExpanded ? null : index)}
+                              >
                                 <div
-                                  className="rounded-full px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.18em]"
-                                  style={{ color: "var(--gold)", background: "rgba(232,197,71,0.08)", border: "1px solid rgba(232,197,71,0.22)" }}
-                                >
-                                  {item.metrics}
+                                  className="absolute bottom-0 left-0 top-0 w-[3px]"
+                                  style={{ background: "linear-gradient(180deg, var(--gold), rgba(232,197,71,0.08))" }}
+                                />
+                                <div className="p-5 pr-14">
+                                  <div className="flex flex-wrap items-start justify-between gap-3 pl-3">
+                                    <div>
+                                      <p className="font-mono text-[10px] uppercase tracking-[0.18em]" style={{ color: "var(--text-dim)" }}>
+                                        {item.period}
+                                      </p>
+                                      <h4 className="mt-2 font-display text-lg font-black md:text-xl" style={{ color: "var(--text)" }}>
+                                        {item.role}
+                                      </h4>
+                                      <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.24em]" style={{ color: "var(--gold)" }}>
+                                        {item.company}
+                                      </p>
+                                    </div>
+                                    <div
+                                      className="rounded-full px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.18em] hidden sm:block"
+                                      style={{ color: "var(--gold)", background: "rgba(232,197,71,0.08)", border: "1px solid rgba(232,197,71,0.22)" }}
+                                    >
+                                      {item.metrics}
+                                    </div>
+                                  </div>
+                                  
+                                  <motion.div
+                                    initial={false}
+                                    animate={{ height: isExpanded ? "auto" : 0, opacity: isExpanded ? 1 : 0 }}
+                                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                                    className="overflow-hidden"
+                                  >
+                                    <p className="mt-4 pl-3 font-body text-sm leading-relaxed md:text-[15px]" style={{ color: "var(--text-muted-raw)" }}>
+                                      {item.details}
+                                    </p>
+                                    <div className="mt-4 pl-3 sm:hidden">
+                                      <div
+                                        className="inline-flex rounded-full px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.18em]"
+                                        style={{ color: "var(--gold)", background: "rgba(232,197,71,0.08)", border: "1px solid rgba(232,197,71,0.22)" }}
+                                      >
+                                        {item.metrics}
+                                      </div>
+                                    </div>
+                                  </motion.div>
                                 </div>
-                              </div>
-                              <p className="mt-4 pl-3 font-body text-sm leading-relaxed md:text-[15px]" style={{ color: "var(--text-muted-raw)" }}>
-                                {item.details}
-                              </p>
-                            </motion.div>
-                          ))}
+                                <div className="absolute top-5 right-5 text-white/30">
+                                  <motion.div animate={{ rotate: isExpanded ? 180 : 0 }}>
+                                    <ChevronDown size={20} />
+                                  </motion.div>
+                                </div>
+                              </motion.div>
+                            );
+                          })}
                         </div>
                       </div>
 

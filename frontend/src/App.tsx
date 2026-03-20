@@ -15,9 +15,10 @@ const App = () => {
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      touchMultiplier: 1.2,
+      touchMultiplier: 1.5,
       smoothWheel: true,
-      syncTouch: false,
+      syncTouch: true,
+      lerp: 0.1,
     });
 
     // Use rAF directly instead of GSAP ticker to avoid double-scheduling overhead
