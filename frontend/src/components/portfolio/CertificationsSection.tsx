@@ -208,4 +208,4 @@ const CertificatesSection = () => {
   );
 };
 
-export default CertificatesSection;y
+export default CertificatesSection;
