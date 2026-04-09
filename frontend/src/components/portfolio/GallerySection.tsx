@@ -1,326 +1,235 @@
-import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import gallery1 from "@/assets/gallery-1.jpg";
-import gallery2 from "@/assets/gallery-2.jpg";
-import gallery3 from "@/assets/gallery-3.jpg";
-import gallery4 from "@/assets/gallery-4.jpg";
 
-type GalleryItem = {
-  title: string;
-  description: string;
-  image: string;
-  tag: string;
-  year: string;
-};
-
-const images: GalleryItem[] = [
+const phases = [
   {
-    title: "Zenith Dashboard",
-    description: "Real-time trading interface with live data streams and dynamic chart visualizations.",
-    image: gallery1,
-    tag: "FINTECH",
-    year: "2025",
+    phase: "01",
+    title: "Foundation Phase",
+    tags: ["Exploration", "Core Web", "Design Basics"],
+    bullets: [
+      "Built multiple responsive interfaces using HTML, CSS, JavaScript",
+      "Developed strong fundamentals in layout systems, responsiveness, and clean UI structuring",
+      "Started designing with Canva and exploring visual storytelling",
+      "Learned the importance of user flow, readability, and simplicity",
+    ],
+    focus: "Understanding how users interact with digital interfaces"
   },
   {
-    title: "Nomad Brand System",
-    description: "Complete visual identity and design language for a global creative studio.",
-    image: gallery2,
-    tag: "BRANDING",
-    year: "2024",
+    phase: "02",
+    title: "Interactive Development",
+    tags: ["UI/UX", "Animations", "User Engagement"],
+    bullets: [
+      "Created Interactive To-Do List with drag & drop functionality",
+      "Animated BMI Calculator with visual metric graphs",
+      "Implemented smooth transitions, hover-based interactions, and dynamic UI behavior",
+      "Focused on making projects feel alive, not static",
+    ],
+    focus: "Turning static UI into engaging experiences"
   },
   {
-    title: "EcoTrack Mobile",
-    description: "Carbon tracking app with ML-powered insights and beautiful data presentation.",
-    image: gallery3,
-    tag: "CLIMATE",
-    year: "2024",
+    phase: "03",
+    title: "Creative Engineering",
+    tags: ["Unique Concepts", "Visual Experiments"],
+    bullets: [
+      "Smoke Effect Interface Project with interactive canvas",
+      "Sticker Tag Interactive UI highlighting micro-interactions",
+      "India Map using character-based design and SVG manipulation",
+      "Enhanced projects with custom animations, effects, and unique patterns"
+    ],
+    focus: "Creating standout, non-generic digital experiences"
   },
   {
-    title: "Vaultkey Interface",
-    description: "Multi-chain wallet security dashboard with real-time audit visualization.",
-    image: gallery4,
-    tag: "WEB3",
-    year: "2023",
+    phase: "04",
+    title: "System & Real-World Thinking",
+    tags: ["Logic", "Scalability", "Practical Applications"],
+    bullets: [
+      "Developed structured Ticketing System with search and availability logic",
+      "Worked heavily with data handling, logic building, and real-world problem solving",
+      "Practiced writing clean, structured, modular, and scalable code"
+    ],
+    focus: "Moving from UI strictly to functional systems"
   },
+  {
+    phase: "05",
+    title: "Advanced Projects & Tools",
+    tags: ["Modern Tech", "AI", "Cloud Awareness"],
+    bullets: [
+      "Built an AWS SAM-based project for serverless architecture understanding",
+      "Engineered an UNO Game combining complex rules logic and UI",
+      "Gained exposure to cloud-based workflows and generative AI concepts",
+      "Focused on combining frontend presentation with system thinking"
+    ],
+    focus: "Building future-ready, tech-integrated solutions"
+  },
+  {
+    phase: "06",
+    title: "Design-Driven Portfolio",
+    tags: ["Premium UI", "Personal Branding", "Product Thinking"],
+    bullets: [
+      "Designed a high-end portfolio system with advanced framer animations",
+      "Wove section-based storytelling with smooth navigation and interactions",
+      "Focused heavily on clean, non-generic layouts and professional presentation",
+      "Established a powerful visual hierarchy and typography scaling"
+    ],
+    focus: "Presenting work like a product, not just random projects"
+  },
+  {
+    phase: "07",
+    title: "Content & Digital Growth",
+    tags: ["YouTube", "Strategy", "Audience Understanding"],
+    bullets: [
+      "Built a YouTube presence with 200K+ audience engagement experience",
+      "Mastered content positioning, audience psychology, and growth strategies",
+      "Restarted entirely with a new focus on intersectional tech and finance content",
+      "Experimented with different visual media delivery formats"
+    ],
+    focus: "Building systems beyond code — audience & business"
+  }
 ];
 
-const GalleryCard = ({
-  item,
-  index,
-  onOpen,
-}: {
-  item: GalleryItem;
-  index: number;
-  onOpen: (index: number) => void;
-}) => {
+const PhaseCard = ({ phase, total }: { phase: typeof phases[0], total: number }) => {
   return (
-    <motion.div
-      className="group relative flex h-[60vh] md:h-[70vh] w-[85vw] md:w-[60vw] max-w-4xl shrink-0 flex-col overflow-hidden rounded-2xl md:rounded-3xl shadow-2xl mr-8 md:mr-16 cursor-pointer"
-      style={{
-        background: "rgba(9,11,16,0.9)",
-        border: "1px solid rgba(255,255,255,0.08)",
-      }}
-      initial={{ opacity: 0, scale: 0.95 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-      onClick={() => onOpen(index)}
-      role="button"
-      tabIndex={0}
-      aria-label={`Open gallery item: ${item.title}`}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") onOpen(index);
-      }}
-    >
-      {/* Background Image with Hover Scale */}
-      <div className="absolute inset-0 overflow-hidden">
-        <motion.div
-          className="h-full w-full"
-          whileHover={{ scale: 1.05 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <img src={item.image} alt={item.title} className="h-full w-full object-cover" loading="lazy" />
-        </motion.div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+    <div className="group relative flex h-[75vh] w-[88vw] md:w-[75vw] lg:w-[60vw] max-w-5xl shrink-0 flex-col overflow-hidden bg-[#070707] border border-white/10 rounded-xl mr-6 md:mr-12 px-6 py-8 md:p-14 lg:p-16">
+      
+      {/* Background Graphic (Typographic) */}
+      <div className="absolute right-0 bottom-[-5%] font-display text-[14rem] md:text-[24rem] lg:text-[32rem] font-black leading-none text-white/[0.02] pointer-events-none select-none tracking-tighter">
+        {phase.phase}
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 flex h-full flex-col justify-end p-6 md:p-12">
-        <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="rounded-full border border-[rgba(232,197,71,0.3)] bg-[rgba(232,197,71,0.1)] px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-[#E8C547] backdrop-blur-md">
-              {item.tag}
-            </span>
-            <span className="font-mono text-[10px] uppercase tracking-widest text-white/50">
-              {item.year}
-            </span>
-          </div>
-          <div className="font-display text-4xl font-black text-white/10 md:text-6xl">
-            {String(index + 1).padStart(2, "0")}
+      <div className="relative z-10 flex h-full flex-col justify-between">
+        {/* Header Area */}
+        <div>
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8 md:mb-12">
+            <div>
+              <div className="flex flex-wrap items-center gap-2 mb-6">
+                {phase.tags.map(tag => (
+                  <span key={tag} className="border border-white/10 px-3 py-1.5 font-mono text-[10px] md:text-xs uppercase tracking-widest text-[#E8C547]">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+              <h3 className="font-display text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1] text-balance max-w-2xl uppercase">
+                {phase.title}
+              </h3>
+            </div>
+            <div className="hidden md:block font-mono text-xs text-white/30 tracking-widest uppercase mt-2 whitespace-nowrap">
+              Phase {phase.phase} / 0{total}
+            </div>
           </div>
         </div>
 
-        <h3 className="mb-3 max-w-2xl font-display text-3xl font-bold text-white md:text-5xl lg:text-6xl text-balance leading-tight">
-          {item.title}
-        </h3>
-        <p className="max-w-xl font-body text-sm leading-relaxed text-white/70 md:text-base">
-          {item.description}
-        </p>
-      </div>
-
-        {/* Hover CTA */}
-        <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-start justify-end p-4">
-          <div
-            className="rounded-full border border-[rgba(232,197,71,0.35)] bg-[rgba(232,197,71,0.07)] px-4 py-2 font-mono text-[10px] uppercase tracking-widest"
-            style={{ color: "#E8C547" }}
-          >
-            View
+        {/* Content Area */}
+        <div className="mt-auto grid grid-cols-1 lg:grid-cols-[1fr_0.85fr] gap-10 md:gap-16 items-end">
+          <ul className="space-y-4 md:space-y-5">
+            {phase.bullets.map((bullet, i) => (
+              <li key={i} className="flex items-start gap-4">
+                <span className="font-mono text-[#E8C547] text-[10px] mt-1.5 uppercase shrink-0 font-bold">
+                  {String.fromCharCode(97 + i)}.
+                </span>
+                <span className="text-white/70 font-body text-sm md:text-[15px] leading-relaxed max-w-md">
+                  {bullet}
+                </span>
+              </li>
+            ))}
+          </ul>
+          
+          <div className="flex flex-col justify-end h-full">
+            <div className="bg-[#111] p-6 lg:p-8 border-l-2 border-[#E8C547] min-h-[140px] flex flex-col justify-center relative overflow-hidden group-hover:bg-[#151515] transition-colors duration-500">
+              <span className="block font-mono text-[10px] uppercase tracking-widest text-white/40 mb-3 relative z-10">
+                Core Objective
+              </span>
+              <p className="font-body text-white font-medium text-base md:text-lg leading-relaxed text-balance relative z-10">
+                "{phase.focus}"
+              </p>
+            </div>
           </div>
         </div>
-    </motion.div>
+      </div>
+    </div>
   );
 };
 
 const GallerySection = () => {
   const targetRef = useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
-
-  const { scrollYProgress } = useScroll({
-    target: targetRef,
-  });
-
-  // Map scroll progress to horizontal translation
-  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-100%"]);
-
-  const close = () => setActiveIndex(null);
-  const goPrev = () =>
-    setActiveIndex((i) => (i === null ? 0 : (i - 1 + images.length) % images.length));
-  const goNext = () =>
-    setActiveIndex((i) => (i === null ? 0 : (i + 1) % images.length));
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [scrollRange, setScrollRange] = useState(0);
 
   useEffect(() => {
-    if (activeIndex === null) return;
-
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close();
-      if (e.key === "ArrowLeft") goPrev();
-      if (e.key === "ArrowRight") goNext();
+    const updateRange = () => {
+      if (scrollRef.current) {
+        setScrollRange(scrollRef.current.scrollWidth - window.innerWidth);
+      }
     };
+    updateRange();
+    
+    // Slight delay to ensure fonts/layout are rendered
+    setTimeout(updateRange, 100); 
 
-    document.addEventListener("keydown", onKeyDown);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    window.addEventListener("resize", updateRange);
+    return () => window.removeEventListener("resize", updateRange);
+  }, []);
 
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      document.body.style.overflow = prevOverflow;
-    };
-  }, [activeIndex]);
+  const { scrollYProgress } = useScroll({ target: targetRef });
+  const x = useTransform(scrollYProgress, [0, 1], [0, scrollRange > 0 ? -scrollRange : 0]);
 
   return (
-    <section ref={targetRef} id="archive" className="relative h-[300vh] bg-[#050505]">
+    <section ref={targetRef} id="archive" className="relative h-[500vh] bg-[#030303]">
       {/* Sticky Container */}
       <div className="sticky top-0 flex h-screen items-center overflow-hidden">
+        
         {/* Header / Intro */}
-        <div className="absolute left-6 top-24 z-20 w-[min(24rem,calc(100%-2rem))] md:left-12 md:top-32 lg:w-[28rem]">
+        <div className="absolute left-6 top-20 z-20 w-[min(24rem,calc(100%-2rem))] md:left-12 md:top-28 lg:w-[28rem] pointer-events-none">
           <motion.div
             initial={{ opacity: 0, x: -24 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           >
-            <p className="mb-4 font-mono text-[10px] uppercase tracking-widest text-[#E8C547] md:text-xs">
-              Curated Selection
+            <p className="mb-4 font-mono text-[10px] uppercase tracking-widest text-white/50 border-l border-[#E8C547] pl-3">
+              Chronology
             </p>
             <h2 className="font-display text-5xl font-black leading-none text-white md:text-6xl lg:text-7xl">
-              VISUAL <br />
+              EVOLUTION <br />
               <span className="text-[#E8C547]">ARCHIVE</span>
             </h2>
-            <p className="mt-6 max-w-sm font-body text-sm leading-relaxed text-white/60 md:text-base">
-              A chronological journey through my most impactful design and development work, showcasing modern interfaces and robust systems.
+            <p className="mt-6 max-w-xs md:max-w-sm font-body text-sm leading-relaxed text-white/60 md:text-base bg-[#030303]/80 md:bg-transparent backdrop-blur-sm md:backdrop-blur-none p-4 -ml-4 md:p-0 md:m-0 rounded-lg md:rounded-none">
+              A comprehensive timeline detailing the evolution of my technical skills, design philosophy, and systematic thinking through 7 distinct phases.
             </p>
           </motion.div>
         </div>
 
-        {/* Horizontal Scrolling Gallery */}
-        <motion.div style={{ x, position: "relative" }} className="flex">
+        {/* Horizontal Scrolling Area */}
+        <motion.div ref={scrollRef} style={{ x }} className="flex h-full items-center">
           {/* Spacer to push first item past the header area on desktop */}
           <div className="w-[10vw] shrink-0 md:w-[35vw]" />
 
-          {images.map((item, index) => (
-            <GalleryCard key={item.title} item={item} index={index} onOpen={setActiveIndex} />
+          {phases.map((phase) => (
+            <PhaseCard key={phase.phase} phase={phase} total={phases.length} />
           ))}
 
           {/* Spacer at the end */}
-          <div className="w-[10vw] shrink-0" />
+          <div className="w-[10vw] shrink-0 md:w-[15vw]" />
         </motion.div>
 
         {/* Scroll Indicator */}
         <motion.div
-          className="absolute bottom-12 left-6 flex items-center gap-4 z-20 md:left-12"
+          className="absolute bottom-10 left-6 flex items-center gap-4 z-20 md:left-12"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 1, delay: 0.5 }}
         >
-          <div className="h-[1px] w-12 bg-white/20">
+          <div className="h-[1px] w-16 bg-white/10">
             <motion.div
               className="h-full bg-[#E8C547] w-full origin-left"
               style={{ scaleX: scrollYProgress }}
             />
           </div>
-          <span className="font-mono text-[10px] uppercase tracking-widest text-white/50">
+          <span className="font-mono text-[10px] uppercase tracking-widest text-[#E8C547]">
             Scroll to explore
           </span>
         </motion.div>
       </div>
-
-      {/* Lightbox */}
-      <AnimatePresence>
-        {activeIndex !== null && (
-          <motion.div
-            className="fixed inset-0 z-[99999] flex items-center justify-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            aria-modal="true"
-            role="dialog"
-          >
-            <div
-              className="absolute inset-0 bg-black/70"
-              onClick={close}
-              aria-hidden
-            />
-
-            <motion.div
-              className="relative w-[92vw] max-w-4xl rounded-2xl border border-white/10 bg-[#050505] overflow-hidden"
-              initial={{ scale: 0.98, y: 18, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.98, y: 18, opacity: 0 }}
-              transition={{ duration: 0.22 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="absolute top-3 right-3 z-10 flex gap-2">
-                <button
-                  type="button"
-                  onClick={close}
-                  className="rounded-full border border-white/15 bg-white/5 px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-white/80 hover:text-white hover:border-white/25 transition-colors"
-                >
-                  Close
-                </button>
-              </div>
-
-              <div className="relative">
-                <img
-                  src={images[activeIndex].image}
-                  alt={images[activeIndex].title}
-                  className="w-full h-[55vh] md:h-[65vh] object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              </div>
-
-              <div className="p-6 md:p-8 relative z-10">
-                <div className="flex items-start justify-between gap-6">
-                  <div>
-                    <div className="flex items-center gap-3">
-                      <span className="rounded-full border border-[rgba(232,197,71,0.35)] bg-[rgba(232,197,71,0.07)] px-3 py-1 font-mono text-[10px] uppercase tracking-widest" style={{ color: "#E8C547" }}>
-                        {images[activeIndex].tag}
-                      </span>
-                      <span className="font-mono text-[10px] uppercase tracking-widest text-white/50">
-                        {images[activeIndex].year}
-                      </span>
-                    </div>
-                    <h3 className="font-display font-bold text-2xl md:text-3xl mt-3 text-white">
-                      {images[activeIndex].title}
-                    </h3>
-                    <p className="font-body text-sm md:text-base mt-3 text-white/70 leading-relaxed max-w-2xl">
-                      {images[activeIndex].description}
-                    </p>
-                  </div>
-
-                  <div className="hidden md:flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={goPrev}
-                      className="rounded-full border border-white/15 bg-white/5 px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-white/80 hover:text-white hover:border-white/25 transition-colors"
-                      aria-label="Previous gallery item"
-                    >
-                      Prev
-                    </button>
-                    <button
-                      type="button"
-                      onClick={goNext}
-                      className="rounded-full border border-white/15 bg-white/5 px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-white/80 hover:text-white hover:border-white/25 transition-colors"
-                      aria-label="Next gallery item"
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex md:hidden items-center justify-between mt-6">
-                  <button
-                    type="button"
-                    onClick={goPrev}
-                    className="rounded-full border border-white/15 bg-white/5 px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-white/80 hover:text-white hover:border-white/25 transition-colors"
-                    aria-label="Previous gallery item"
-                  >
-                    Prev
-                  </button>
-                  <button
-                    type="button"
-                    onClick={goNext}
-                    className="rounded-full border border-white/15 bg-white/5 px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-white/80 hover:text-white hover:border-white/25 transition-colors"
-                    aria-label="Next gallery item"
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </section>
   );
 };
