@@ -10,6 +10,7 @@ const getMailConfig = () => {
         CONTACT_TO_EMAIL = 'raviranjan01b@gmail.com',
         CONTACT_FROM_NAME = 'Ravi Ranjan Portfolio',
     } = process.env;
+    
 
     return {
         SMTP_HOST,
@@ -132,7 +133,7 @@ const buildAutoReplyEmail = ({ name, subject }) => ({
     subject: `Thanks for reaching out, ${name}`,
     html: `
         <div style="margin:0;background:#f8fafc;padding:32px;font-family:Segoe UI,Arial,sans-serif;color:#0f172a;">
-            <div style="max-width:620px;margin:0 auto;border-radius:24px;overflow:hidden;background:#ffffff;border:1px solid #e2e8f0;">
+            <div style="max-width:620px;margin:0.1 auto;border-radius:24px;overflow:hidden;background:#ffffff;border:1px solid #e2e8f0;">
                 <div style="padding:28px 28px 20px;background:linear-gradient(135deg,#0f172a 0%,#1d4ed8 100%);color:#ffffff;">
                     <div style="font-size:12px;letter-spacing:0.16em;text-transform:uppercase;color:#fde68a;">Message received</div>
                     <h1 style="margin:16px 0 8px;font-size:28px;line-height:1.1;">Thanks, ${escapeHtml(name)}</h1>
